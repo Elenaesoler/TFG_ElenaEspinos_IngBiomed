@@ -8,83 +8,61 @@ using Joint = Windows.Kinect.Joint;
 
 public class AlmacenarCoordenadas : MonoBehaviour
 {
-    //// Suelta este script debajo de un objeto en tu escena y especifica otros 2 objetos en las variables "startMarker" / "endMarker" en la ventana del inspector de script.
-    //// En el momento de la reproducción, el script moverá el objeto a lo largo de una ruta entre la posición de esos dos marcadores. 
-    ////https://docs.unity3d.com/ScriptReference/Vector3.Lerp.html
+    #region Timer
+    private float waitTime = 4.0f;
+    private float timer = 0.0f;
+    private float visualTime = 0.0f;
+    private int height, width;
+    private float value = 10.0f;
+    private float scrollBar = 1.0f;
 
-    //// Transforms to act as start and end markers for the journey.
-    public Transform startMarker; //coordenada de inicio
-    public Transform endMarker;  //coordenada final
-
-    // Movement speed in units per second.
-    public float speed = 2000.0F;
-
-    // Time when the movement started.
-    private float startTime;
-
-    // Total distance between the markers.
-    private float journeyLength;
-
-    // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
-        Debug.Log("entro en start de almacenarCoordenadas");
-        //meter un timestamp
-        // boolean de captura = true;
-        // variable de guardar joints. Llama a la lista del script bodysourceview
-        // Keep a note of the time the movement started.
-        startTime = Time.time;
-
-        // Calculate the journey length.
-        journeyLength = Vector3.Distance(startMarker.position, endMarker.position);
+        width = Screen.width;
+        height = Screen.height;
+        Time.timeScale = scrollBar; //velocidad normal 1.0f
     }
 
-    // Update is called once per frame
     void Update()
     {
-        //timestampN
-        // if(timesatmpN - Timestamp > x) and  captura==true
-        //      guardar coordenada_mano (coordenadaMano.Add)
-        //       if(dist < x) (si la distancia es minima que apenas se mueve la mano)
-        //                captura ==false;
+        timer += Time.deltaTime;
 
-        // Distance moved equals elapsed time times speed..
-        float distCovered = (Time.time - startTime) * speed;
+        if(timer > waitTime)
+        {
+            visualTime = timer;
 
-        // Fraction of journey completed equals current distance divided by total distance.
-        float fractionOfJourney = distCovered / journeyLength;
-
-        // Set our position as a fraction of the distance between the markers.
-        transform.position = Vector3.Lerp(startMarker.position, endMarker.position, fractionOfJourney);
+            timer = timer - waitTime;
+            Time.timeScale = scrollBar;
+        }
     }
+    void OnGUI()
+    {
+        GUIStyle sliderDetails = new GUIStyle(GUI.skin.GetStyle("horizontalSlider"));
+        GUIStyle sliderThumbDetails = new GUIStyle(GUI.skin.GetStyle("horizontalSliderThumb"));
+        GUIStyle labelDetails = new GUIStyle(GUI.skin.GetStyle("label"));
 
-    #region TIMER
-    //public Text tiempoText;
-    //public float tiempo = 0.0f;
+        // Set the size of the fonts and the width/height of the slider.
+        labelDetails.fontSize = 6 * (width / 200);
+        sliderDetails.fixedHeight = height / 32;
+        sliderDetails.fontSize = 12 * (width / 200);
+        sliderThumbDetails.fixedHeight = height / 32;
+        sliderThumbDetails.fixedWidth = width / 32;
 
-    //public void CountDown()
-    //{
-    //   tiempo = tiempo - 1 * Time.dataTime;  // para que vaya acorde al tiempo real decreciendo
-    //    tiempoText.text = "" + tiempo.ToString("f0");
-    //}
+        // Show the slider. Make the scale to be ten times bigger than the needed size.
+        value = GUI.HorizontalSlider(new Rect(width / 8, height / 4, width - (4 * width / 8), height - (2 * height / 4)),
+            value, 5.0f, 20.0f, sliderDetails, sliderThumbDetails);
 
+        // Show the value from the slider. Make sure that 0.5, 0.6... 1.9, 2.0 are shown.
+        float v = ((float)Mathf.RoundToInt(value)) / 10.0f;
+        GUI.Label(new Rect(width / 8, height / 3.25f, width - (2 * width / 8), height - (2 * height / 4)),
+            "timeScale: " + v.ToString("f1"), labelDetails);
+        scrollBar = v;
 
-
-
+        // Display the recorded time in a certain size.
+        labelDetails.fontSize = 14 * (width / 200);
+        GUI.Label(new Rect(width / 8, height / 2, width - (2 * width / 8), height - (2 * height / 4)),
+            "Timer value is: " + visualTime.ToString("f4") + " seconds.", labelDetails);
+    }
     #endregion
-    //public int interpolationFramesCount = 1800; // Number of frames to completely interpolate between the 2 positions
-    //int elapsedFrames = 0;
-
-    //void Update()
-    //{
-    //    float interpolationRatio = (float)elapsedFrames / interpolationFramesCount;
-
-    //    Vector3 interpolatedPosition = Vector3.Lerp(Vector3.up, Vector3.forward, interpolationRatio);
-
-    //    elapsedFrames = (elapsedFrames + 1) % (interpolationFramesCount + 1);  // reset elapsedFrames to zero after it reached (interpolationFramesCount + 1)
-
-    //    Debug.DrawLine(Vector3.zero, Vector3.up, Color.green);
-    //    Debug.DrawLine(Vector3.zero, Vector3.forward, Color.blue);
-    //    Debug.DrawLine(Vector3.zero, interpolatedPosition, Color.yellow);
-    //}
 }
+

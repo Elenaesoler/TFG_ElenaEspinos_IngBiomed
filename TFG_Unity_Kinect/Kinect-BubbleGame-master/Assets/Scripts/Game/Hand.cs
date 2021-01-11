@@ -8,6 +8,7 @@ public class Hand : MonoBehaviour
     public Transform mHandMesh;
     public int explotedBubble;
 
+    //la coordenada de la mano se actualiza cada 15.0 frames 
     private void Update()
     {
         mHandMesh.position = Vector3.Lerp(mHandMesh.position, transform.position, Time.deltaTime * 15.0f);
@@ -20,7 +21,6 @@ public class Hand : MonoBehaviour
     {
         SceneManager.LoadScene(sceneName);
     }
-
 
 
 

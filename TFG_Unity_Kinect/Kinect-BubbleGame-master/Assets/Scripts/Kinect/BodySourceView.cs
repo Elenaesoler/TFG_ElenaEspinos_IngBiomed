@@ -49,7 +49,7 @@ public class BodySourceView : MonoBehaviour
     //}
     void Update()
     {
-        Debug.Log("Dentro de update() -- BodySourceView");
+        //Debug.Log("Dentro de update() -- BodySourceView");
         #region Get Kinect data
         Body[] data = mBodySourceManager.GetData();
         if (data == null)
@@ -105,7 +105,7 @@ public class BodySourceView : MonoBehaviour
     private GameObject CreateBodyObject(ulong id)
     {
         // Create body parent
-        Debug.Log("Drntro de create body");
+        Debug.Log("Dentro de create body");
         GameObject body = new GameObject("Body:" + id);
 
         // Create joints
@@ -127,17 +127,20 @@ public class BodySourceView : MonoBehaviour
         // Update joints
         //foreach (JointType _joint in _joints)
         // {
-        Debug.Log("Estoy en update body");
-             // Get new target position
-         Joint sourceJoint = body.Joints[JointType.HandRight]; //_joint por JointType.HandRight
+        Debug.Log("Estoy en update body"); //imprimir comprobacion
+        
+        // Get new target position
+        Joint sourceJoint = body.Joints[JointType.HandRight]; //_joint por JointType.HandRight
         Vector3 targetPosition = GetVector3FromJoint(sourceJoint);
-        targetPosition.z = 0;  // posicion z=0 SIEMPRE para que la pompa y la mano esten en la misma coordenada en 3D
+        targetPosition.z = 0;  
+        // posicion z=0 SIEMPRE para que la pompa y la mano esten en la misma coordenada en 2D
 
-        Debug.Log("Estoy en update -- grabar");
+        Debug.Log("Estoy en update -- Grabar"); //imprimir comprobacion
 
-        //string _timeStamp = GetTimeStamp();
+
+       
         // Get joint, set new position
-        Transform jointObject = bodyObject.transform.Find(JointType.HandRight.ToString()); //el cuerpo que reconoce 
+        Transform jointObject = bodyObject.transform.Find(JointType.HandRight.ToString()); 
         jointObject.position = targetPosition;
 
         if (coordenadaMano.Count == 0)
@@ -147,18 +150,19 @@ public class BodySourceView : MonoBehaviour
         }
 
         Debug.Log(coordenadaMano.Count);
+        Debug.Log(targetPosition);
 
-        #region distancia entre coordenada actual y coordenada anterior
+        #region Calculo de la distancia entre coordenada actual y coordenada anterior
         //calculo de la distancia entre la posicion actual de la mano y la anterior.
         //al inicio no existe ninguna coordenada coordenadaMano.Count ==0 entonces añade la primera 
         //despues, es cuando comienza a calcular distancias. 
 
         float dist = Vector3.Distance(targetPosition, coordenadaMano[coordenadaMano.Count - 1]);
+        Debug.Log(dist);
+        #endregion
 
-       // if(dist < 0.01) //mientras la mano no se quede quieta, que la distacia se mayor a esta por ejemplo (0.01)
-        
-
-            if (dist >= 0.6 )    //si la distancia entre la posicion actual (targetposition) y la anterior es mayr o igual a 0,6, guardala como nueva coordenada de la mano
+        #region Imprime la lista de coordenadas almacenadas en coordenadaMano si  la distancia es mayor a 2,6(por ejemplo)
+        if (dist >= 2.6 )    //si la distancia entre la posicion actual (targetposition) y la anterior es mayr o igual a 0,6, guardala como nueva coordenada de la mano
             { 
                 coordenadaMano.Add(targetPosition);
           
@@ -167,15 +171,13 @@ public class BodySourceView : MonoBehaviour
                 {
                     Debug.Log("coordenadaMano " + coordenadaGuardada);
                 }
-            
-         
-                Debug.Log("Dist"+ dist);
-                Debug.Log(coordenadaMano.Count);
-            #endregion
+                     
+                Debug.Log("Dist"+ dist); //imprimir comprobacion
+                Debug.Log(coordenadaMano.Count);  //imprimir comprobacion
+
         }
-        //Debug.Log(targetPosition); //imprime en consola las coordenadas de los joints que tengo en _joints
-        
-       
+        #endregion
+
         #region crear txt con las coordenadas
 
         //coordenadaMano.ToString();  //las coordenads de tipo vector3 las paso  string para usarlas en el txt
@@ -188,8 +190,6 @@ public class BodySourceView : MonoBehaviour
         //Debug.Log(coordinates);
         #endregion
     }
-
-
 
     private Vector3 GetVector3FromJoint(Joint joint)
     {

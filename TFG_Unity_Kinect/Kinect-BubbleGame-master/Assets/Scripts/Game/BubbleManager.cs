@@ -13,14 +13,14 @@ public class BubbleManager : MonoBehaviour
     private void Awake()
     {
         // Bounding values
-        Debug.Log("entro en awake");
+        Debug.Log("Entro en awake - Bubble manager");
         mBottomLeft = Camera.main.ScreenToWorldPoint(new Vector3(0, 0, Camera.main.farClipPlane));
         mTopRight = Camera.main.ScreenToWorldPoint(new Vector3(Camera.main.pixelWidth, Camera.main.pixelHeight / 2, Camera.main.farClipPlane));
     }
 
     private void Start()
     {
-        Debug.Log("Empieza start y el juego comienza a capturar coordenadas");
+        Debug.Log("Empieza start y el juego comienza a capturar coordenadas - Bubble manager");
         bool captura = true;  //captura esta sin utilizar 
         StartCoroutine(CreateBubbles());
     }
