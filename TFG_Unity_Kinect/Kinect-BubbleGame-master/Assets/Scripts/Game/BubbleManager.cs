@@ -21,7 +21,6 @@ public class BubbleManager : MonoBehaviour
     private void Start()
     {
         Debug.Log("Empieza start y el juego comienza a capturar coordenadas - Bubble manager");
-        bool captura = true;  //captura esta sin utilizar 
         StartCoroutine(CreateBubbles());
     }
 
