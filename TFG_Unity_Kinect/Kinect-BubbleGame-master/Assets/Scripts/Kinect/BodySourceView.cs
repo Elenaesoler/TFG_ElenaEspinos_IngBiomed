@@ -18,6 +18,7 @@ public class BodySourceView : MonoBehaviour
     public GameObject botonFin;
     //public GameObject botonJugar;
 
+
     private Dictionary<ulong, GameObject> mBodies = new Dictionary<ulong, GameObject>();
     private List<JointType> _joints = new List<JointType>
     {
@@ -191,15 +192,14 @@ public class BodySourceView : MonoBehaviour
     #region crear txt con las coordenadas
     public void FileGrabacion()
     {
-        StreamWriter output = new StreamWriter("Archivo.txt", true);
-        Debug.Log("Se ha creado el archivo");
-
-        output.WriteLine("Hola");
-        foreach (Vector3 coordenadaGuardada in coordenadaMano)
+        string[] lineas = { "1", "2", "3" };
+        using (StreamWriter output = new StreamWriter("Archivo.txt", true))
         {
-            output.Write(coordenadaGuardada);
-
-        }
+            output.WriteLine("Hola");
+            foreach (string linea in lineas)
+                output.WriteLine(linea);
+            Debug.Log("Se ha creado el archivo y añadido 3 lineas");
+        }                
     }
 #endregion
 }
@@ -207,9 +207,6 @@ public class BodySourceView : MonoBehaviour
 //crear los vectores de hombro-mano, hombro-hombro, cadera-cadera y de cadera-hombro
 //con hombro-cadera y hombro-mano sacamos el angulo que forman 
 //con hombro-hombro y cadera-cadera comprobar que se mantienen paralelas o con igual angulo que el inicial
-
-
-
 
 
 ////bucle que meta cada coordenadaMano en la variable coordinates
