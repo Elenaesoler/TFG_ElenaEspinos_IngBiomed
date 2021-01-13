@@ -11,13 +11,12 @@ public class BodySourceView : MonoBehaviour
     public BodySourceManager mBodySourceManager;
     public GameObject mJointObject;
 
-    public List<Vector3> coordenadaMano = new List<Vector3>();  //esta lista almacena la posicion de la mano
+    private static List<Vector3> coordenadaMano = new List<Vector3>();  //esta lista almacena la posicion de la mano
     public Vector3 targetPosition;
-    public bool grabar;
+    private static bool ggrabar=false;
     public GameObject botonGrabar;
     public GameObject botonFin;
     //public GameObject botonJugar;
-
 
     private Dictionary<ulong, GameObject> mBodies = new Dictionary<ulong, GameObject>();
     private List<JointType> _joints = new List<JointType>
@@ -88,7 +87,7 @@ public class BodySourceView : MonoBehaviour
 
     public void CallbackBotonGrabar()
     {
-        grabar = true;
+        ggrabar = true;
         Debug.Log("Comienza a grabar el ejercicio y desaparece el boton'Grabar' ");
         botonGrabar.SetActive(false);
         //botonJugar.SetActive(false);
@@ -97,7 +96,7 @@ public class BodySourceView : MonoBehaviour
 
     public void CallbackBotonFin()
     {
-        grabar = false;
+        ggrabar = false;
         Debug.Log("Finaliza el ejercicio y desaparece el boton'Finalizar' ");
         botonFin.SetActive(false);
         botonGrabar.SetActive(true);
@@ -126,23 +125,26 @@ public class BodySourceView : MonoBehaviour
     
     private void UpdateBodyObject(Body body, GameObject bodyObject)
     {
+        Debug.Log("grabar-->"+ ggrabar);
         // Update joints
         //foreach (JointType _joint in _joints)
         // {
-        
-          // Get new target position
+
+        // Get new target position
         Joint sourceJoint = body.Joints[JointType.HandRight]; //_joint por JointType.HandRight
         targetPosition = GetVector3FromJoint(sourceJoint);
         targetPosition.z = 0;  // posicion z=0 SIEMPRE para que la pompa y la mano esten en la misma coordenada en 2D
-
-        //Debug.Log("Estoy en update -- Grabar"); //imprimir comprobacion
 
         // Get joint, set new position
         Transform jointObject = bodyObject.transform.Find(JointType.HandRight.ToString()); 
         jointObject.position = targetPosition;
 
-        if ( grabar == true)
+        if (ggrabar == true)
+        {
+            Debug.Log("empzar a grabar");
             GrabarEjercicio();
+        }
+            
 
     }
 
@@ -159,23 +161,23 @@ public class BodySourceView : MonoBehaviour
             coordenadaMano.Add(targetPosition);
             return;
         }
-        Debug.Log(coordenadaMano.Count); //imprimir comprobacion 
+        //Debug.Log(coordenadaMano.Count); //imprimir comprobacion 
         //Debug.Log(targetPosition); //imprimir comprobacion 
 
         float dist = Vector3.Distance(targetPosition, coordenadaMano[coordenadaMano.Count - 1]);
         //Debug.Log(dist);
         #endregion
 
-        #region Imprime  y añade corrdenda a la lista de coordenadas almacenadas en coordenadaMano si  la distancia es mayor a 2,6(por ejemplo)
+        #region Imprime  y añade coordenda a la lista de coordenadas almacenadas en coordenadaMano si  la distancia es mayor a 2,6(por ejemplo)
 
-        if (dist >= 2.6)    //si la distancia entre la posicion actual (targetposition) y la anterior es mayr o igual a 0,6, guardala como nueva coordenada de la mano
+        if (dist >= 0.1)    //si la distancia entre la posicion actual (targetposition) y la anterior es mayr o igual a 0,6, guardala como nueva coordenada de la mano
         {
             coordenadaMano.Add(targetPosition);
 
-            Debug.Log("targetposition " + targetPosition); //imprimir comprobacion 
+            //Debug.Log("targetposition " + targetPosition); //imprimir comprobacion 
             foreach (Vector3 coordenadaGuardada in coordenadaMano)
             {
-                Debug.Log("coordenadaMano " + coordenadaGuardada);
+                //Debug.Log("coordenadaMano " + coordenadaGuardada);
             }
 
             Debug.Log("Dist" + dist); //imprimir comprobacion
@@ -192,14 +194,14 @@ public class BodySourceView : MonoBehaviour
     #region crear txt con las coordenadas
     public void FileGrabacion()
     {
-        string[] lineas = { "1", "2", "3" };
-        using (StreamWriter output = new StreamWriter("Archivo.txt", true))
-        {
-            output.WriteLine("Hola");
-            foreach (string linea in lineas)
-                output.WriteLine(linea);
-            Debug.Log("Se ha creado el archivo y añadido 3 lineas");
-        }                
+        //string[] lineas = { "1", "2", "3" };
+        //using (StreamWriter output = new StreamWriter("Archivo.txt", true))
+        //{
+        //    output.WriteLine("Hola");
+        //    foreach (string linea in lineas)
+        //        output.WriteLine(linea);
+        //    Debug.Log("Se ha creado el archivo y añadido 3 lineas");
+        //}                
     }
 #endregion
 }
@@ -208,14 +210,12 @@ public class BodySourceView : MonoBehaviour
 //con hombro-cadera y hombro-mano sacamos el angulo que forman 
 //con hombro-hombro y cadera-cadera comprobar que se mantienen paralelas o con igual angulo que el inicial
 
-
 ////bucle que meta cada coordenadaMano en la variable coordinates
 //Vector3 coordinates = coordinates.Add(coordenadaMano);
 //System.IO.File.WriteAllLines(@"C:\Users\Nena\Desktop\TFG\WriteText.txt", coordinates);
 //Debug.Log(coordinates);
 
 
-// 
 //timestamp para iniciar la grabacion en un instante y cuando pasen 10seg por ejemplo, que pare de grabar. 
 //que coja la coordenada cada 30 frames por ejemplo
 // que coja t=0 t=0+30 t=0+60 ... y pare a los 10 segundos. con un while(timestamp 
