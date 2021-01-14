@@ -199,6 +199,9 @@ public class BodySourceView : MonoBehaviour
         {
             short numPartes = 5;
             int tamanyoParte = coordenadaMano.Count / numPartes;
+
+            List<Vector3> coordenadaResultante = new List<Vector3>();
+
             for (int parte = 0; parte < numPartes; parte++)
             {
                 float xParte = 0.00f, yParte = 0.0f, zParte = 0.0f;  //Agregue "f" al final para decirle al compilador que es un flotante
@@ -213,7 +216,10 @@ public class BodySourceView : MonoBehaviour
                 float xPartVector = xParte / tamanyoParte;
                 float yPartVector = yParte / tamanyoParte;
                 float zPartVector = zParte / tamanyoParte;
+
+                //Vector3 coordResult(xPartVector, yPartVector, zPartVector);
             }
+            //savedCoordinates.Add(xPartVector, yPartVector, zPartVector);
         }
     }
     #endregion
@@ -221,14 +227,15 @@ public class BodySourceView : MonoBehaviour
     #region crear txt con las coordenadas
     public void FileGrabacion()
     {
-        //string[] lineas = { "1", "2", "3" };
-        //using (StreamWriter output = new StreamWriter("Archivo.txt", true))
-        //{
-        //    output.WriteLine("Hola");
-        //    foreach (string linea in lineas)
-        //        output.WriteLine(linea);
-        //    Debug.Log("Se ha creado el archivo y añadido 3 lineas");
-        //}                
+        string[] lineas = { "1", "2", "3" };
+
+        using (StreamWriter output = new StreamWriter("Archivo.txt", true))
+        {
+            output.WriteLine("Hola");
+            foreach (string linea in lineas)
+                output.WriteLine(linea);
+            Debug.Log("Se ha creado el archivo y añadido 3 lineas");
+        }
     }
 #endregion
 }
