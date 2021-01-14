@@ -9,7 +9,7 @@ public class imageViewer : MonoBehaviour
 {
     public MultiSourceManager mMultiSource;
 
-    public RawImage mRawImage;
+    public RawImage mRawImage; //output color image
 
     void Update()
     {

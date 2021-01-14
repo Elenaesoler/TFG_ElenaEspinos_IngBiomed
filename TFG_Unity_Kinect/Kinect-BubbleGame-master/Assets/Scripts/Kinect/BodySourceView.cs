@@ -191,6 +191,33 @@ public class BodySourceView : MonoBehaviour
         return new Vector3(joint.Position.X * 10, joint.Position.Y * 10, joint.Position.Z * 10);
     }
 
+
+    #region Dividir la lista coordenadasMano en partes y coger la media de cada parte
+    public void promedCoordinates()
+    {
+        if(coordenadaMano.Count != 0)
+        {
+            short numPartes = 5;
+            int tamanyoParte = coordenadaMano.Count / numPartes;
+            for (int parte = 0; parte < numPartes; parte++)
+            {
+                float xParte = 0.00f, yParte = 0.0f, zParte = 0.0f;  //Agregue "f" al final para decirle al compilador que es un flotante
+
+                for (int i = 0; i < tamanyoParte; i++)
+                {
+                    xParte += coordenadaMano[i + parte * tamanyoParte].x;
+                    yParte += coordenadaMano[i + parte * tamanyoParte].y;
+                    zParte += coordenadaMano[i + parte * tamanyoParte].z;
+                }
+
+                float xPartVector = xParte / tamanyoParte;
+                float yPartVector = yParte / tamanyoParte;
+                float zPartVector = zParte / tamanyoParte;
+            }
+        }
+    }
+    #endregion
+
     #region crear txt con las coordenadas
     public void FileGrabacion()
     {

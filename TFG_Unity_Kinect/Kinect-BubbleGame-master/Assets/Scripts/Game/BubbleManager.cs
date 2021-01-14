@@ -33,7 +33,6 @@ public class BubbleManager : MonoBehaviour
 
     public Vector3 GetPlanePosition()
     {
-        // Random Position  --> PASAR A LA POSICION QUE MARQUE LA MANO EN GRABAREJERCICIO
         float targetX = Random.Range(mBottomLeft.x, mTopRight.x);
         float targetY = Random.Range(mBottomLeft.y, mTopRight.y);
 
