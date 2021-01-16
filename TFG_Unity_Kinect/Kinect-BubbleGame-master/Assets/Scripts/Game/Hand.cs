@@ -22,8 +22,6 @@ public class Hand : MonoBehaviour
         SceneManager.LoadScene(sceneName);
     }
 
-
-
     //en este metodo, cuando hay colision, se incrementa la variable explotedBuble
     // al llegar al numero de pompas que se quiera, se invoca al metodo "cambio1"
 
@@ -34,7 +32,6 @@ public class Hand : MonoBehaviour
 
             return;
 
-
         explotedBubble = explotedBubble + 1;   //la variable almacena las pompas que explotan
         Debug.Log("pop" + explotedBubble.ToString()); //imprime en consola el numero de colision MIRAR POR QUE SE DUPLICAN
                                                         //ToString 
@@ -43,10 +40,6 @@ public class Hand : MonoBehaviour
 
         if(explotedBubble==10)   //cuando se exploten 10 (por ejemplo, se puede cambiar. CAMBIAR A VARIABLE DESDE UNITY) pompas acaba el juego. 
             Cambio1("MenuScene");
-        
-
-
-
 
     }
 }

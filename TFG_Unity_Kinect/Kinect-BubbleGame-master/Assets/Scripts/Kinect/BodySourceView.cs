@@ -23,11 +23,11 @@ public class BodySourceView : MonoBehaviour
     {
         JointType.HandLeft,
         JointType.HandRight,
-        JointType.Head,             //añadido
-        JointType.ShoulderRight,  //añadido
-        JointType.ShoulderLeft,   //añadido
-        JointType.HipLeft,        //añadido
-        JointType.HipRight,       //añadido
+        JointType.Head,             
+        JointType.ShoulderRight,  
+        JointType.ShoulderLeft,   
+        JointType.HipLeft,        
+        JointType.HipRight,       
 
     };
    
@@ -144,13 +144,12 @@ public class BodySourceView : MonoBehaviour
             Debug.Log("empzar a grabar");
             GrabarEjercicio();
         }
-            
-
     }
 
     public void GrabarEjercicio()
     {
         Debug.Log("Dentro de grabar ejercicio");
+
         #region Calculo de la distancia entre coordenada actual y coordenada anterior
         //calculo de la distancia entre la posicion actual de la mano y la anterior.
         //al inicio no existe ninguna coordenada coordenadaMano.Count ==0 entonces añade la primera 
@@ -168,7 +167,7 @@ public class BodySourceView : MonoBehaviour
         //Debug.Log(dist);
         #endregion
 
-        #region Imprime  y añade coordenda a la lista de coordenadas almacenadas en coordenadaMano si  la distancia es mayor a 2,6(por ejemplo)
+        #region Imprime y anyade coordenda a la lista de coordenadas almacenadas en coordenadaMano si  la distancia es mayor a 2,6(por ejemplo)
 
         if (dist >= 0.1)    //si la distancia entre la posicion actual (targetposition) y la anterior es mayr o igual a 0,6, guardala como nueva coordenada de la mano
         {
@@ -191,7 +190,6 @@ public class BodySourceView : MonoBehaviour
         return new Vector3(joint.Position.X * 10, joint.Position.Y * 10, joint.Position.Z * 10);
     }
 
-
     #region Dividir la lista coordenadasMano en partes y coger la media de cada parte
     public void promedCoordinates()
     {
@@ -200,11 +198,11 @@ public class BodySourceView : MonoBehaviour
             short numPartes = 5;
             int tamanyoParte = coordenadaMano.Count / numPartes;
 
-            List<Vector3> coordenadaResultante = new List<Vector3>();
+            List<Vector3> coordenadaResultPromed = new List<Vector3>();
 
             for (int parte = 0; parte < numPartes; parte++)
             {
-                float xParte = 0.00f, yParte = 0.0f, zParte = 0.0f;  //Agregue "f" al final para decirle al compilador que es un flotante
+                float xParte = 0.0f, yParte = 0.0f, zParte = 0.0f;  //Agregue "f" al final para decirle al compilador que es un flotante
 
                 for (int i = 0; i < tamanyoParte; i++)
                 {
@@ -213,13 +211,22 @@ public class BodySourceView : MonoBehaviour
                     zParte += coordenadaMano[i + parte * tamanyoParte].z;
                 }
 
+                //var cambio = Vector3(0.0f, 0.0f, 0.0f);
+                
                 float xPartVector = xParte / tamanyoParte;
                 float yPartVector = yParte / tamanyoParte;
                 float zPartVector = zParte / tamanyoParte;
 
-                //Vector3 coordResult(xPartVector, yPartVector, zPartVector);
+                //List<Vector3> coordenadaResultPromed = new List<Vector3>(xPartVector, yPartVector, zPartVector);
+                //coordenadaResultPromed[parte]
+
+                Debug.Log("Parte" + parte + "coordenada X" + xPartVector);
+                Debug.Log("Parte" + parte + "coordenada Y" + yPartVector);
+                Debug.Log("Parte" + parte + "coordenada Z" + zPartVector);
+
+                // Vector3 coordenadaResultante[i,parte](xPartVector, yPartVector, zPartVector);
             }
-            //savedCoordinates.Add(xPartVector, yPartVector, zPartVector);
+            Debug.Log(coordenadaResultPromed);
         }
     }
     #endregion
