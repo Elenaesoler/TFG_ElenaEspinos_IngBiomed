@@ -11,13 +11,13 @@ public class imageViewer : MonoBehaviour
     public MultiSourceManager mMultiSource;
 
     public RawImage mRawImage; //output color image
-    public RawImage mRawDepth;
+    //public RawImage mRawDepth;
 
     void Update()
     {
         mRawImage.texture = mMultiSource.GetColorTexture();
 
-        mRawDepth.texture = mMeasureDepth.mDepthTexture;
+        //mRawDepth.texture = mMeasureDepth.mDepthTexture;
 
 
     }
