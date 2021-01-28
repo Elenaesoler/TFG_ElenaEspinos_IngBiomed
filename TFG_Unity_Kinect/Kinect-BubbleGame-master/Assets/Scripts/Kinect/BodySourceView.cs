@@ -255,8 +255,3 @@ public class BodySourceView : MonoBehaviour
 //Vector3 coordinates = coordinates.Add(coordenadaMano);
 //System.IO.File.WriteAllLines(@"C:\Users\Nena\Desktop\TFG\WriteText.txt", coordinates);
 //Debug.Log(coordinates);
-
-
-//timestamp para iniciar la grabacion en un instante y cuando pasen 10seg por ejemplo, que pare de grabar. 
-//que coja la coordenada cada 30 frames por ejemplo
-// que coja t=0 t=0+30 t=0+60 ... y pare a los 10 segundos. con un while(timestamp 
