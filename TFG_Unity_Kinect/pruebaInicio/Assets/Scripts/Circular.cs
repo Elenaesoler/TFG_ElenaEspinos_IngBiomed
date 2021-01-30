@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Circular : MonoBehaviour
 {
-    public GameObject Cube;
+    public GameObject prefab;
     public GameObject Mano;
     public GameObject Hombro;
 
@@ -26,7 +26,7 @@ public class Circular : MonoBehaviour
         {
             float angle = i * Mathf.PI * 2 / numberOfObjects;
             Vector3 pos = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle),0) * radius;
-            Instantiate(Cube, pos, Quaternion.identity);
+            Instantiate(prefab, pos, Quaternion.identity);
 
         }
         

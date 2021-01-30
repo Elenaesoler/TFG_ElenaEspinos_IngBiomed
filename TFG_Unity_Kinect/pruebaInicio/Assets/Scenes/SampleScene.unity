@@ -232,6 +232,21 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7d6c2c2c072d5b545ab01bfdf3a46c4c, type: 3}
+--- !u!1 &72378661 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6610277669394665653, guid: 7d6c2c2c072d5b545ab01bfdf3a46c4c, type: 3}
+  m_PrefabInstance: {fileID: 72378660}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &72378662 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5056518471552303901, guid: 7d6c2c2c072d5b545ab01bfdf3a46c4c, type: 3}
+  m_PrefabInstance: {fileID: 72378660}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &72378663 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7207837924082867293, guid: 7d6c2c2c072d5b545ab01bfdf3a46c4c, type: 3}
+  m_PrefabInstance: {fileID: 72378660}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &468182694 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3000222124997705738, guid: 7d6c2c2c072d5b545ab01bfdf3a46c4c, type: 3}
@@ -249,9 +264,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9803b6b2cd79634baea5a283b54835a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Cube: {fileID: 0}
-  Mano: {fileID: 0}
-  Hombro: {fileID: 0}
+  prefab: {fileID: 72378663}
+  Mano: {fileID: 72378662}
+  Hombro: {fileID: 72378661}
   numberOfObjects: 20
   radius: 5
 --- !u!1 &1243547586
