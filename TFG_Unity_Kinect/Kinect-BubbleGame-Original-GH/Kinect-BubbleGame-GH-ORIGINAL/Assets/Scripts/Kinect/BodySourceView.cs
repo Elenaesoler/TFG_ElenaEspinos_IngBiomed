@@ -88,6 +88,7 @@ public class BodySourceView : MonoBehaviour
         }
 
         return body;
+       
     }
 
     private void UpdateBodyObject(Body body, GameObject bodyObject)
@@ -104,6 +105,7 @@ public class BodySourceView : MonoBehaviour
             Transform jointObject = bodyObject.transform.Find(_joint.ToString());
             jointObject.position = targetPosition;
         }
+        
     }
 
     private Vector3 GetVector3FromJoint(Joint joint)
