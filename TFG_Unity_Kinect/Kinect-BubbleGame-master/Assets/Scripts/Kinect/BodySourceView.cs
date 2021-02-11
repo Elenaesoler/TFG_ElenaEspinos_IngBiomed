@@ -167,7 +167,6 @@ public class BodySourceView : MonoBehaviour
 
         }
 
-        
         float dist = Vector3.Distance(targetPosition, dictCoordenadas[JointType.HandRight][dictCoordenadas[JointType.HandRight].Count - 1]);
         #endregion
 
