@@ -24,6 +24,7 @@ public class BodySourceView : MonoBehaviour
 
     //private static List<Vector3> coordenadaMano = new List<Vector3>();  //esta lista almacena las posiciones de la mano
     public Vector3 targetPosition;
+    public Vector3 shoulderposition;
     private static bool grabar = false;
     public GameObject botonGrabar;
     public GameObject botonFin;
@@ -127,12 +128,10 @@ public class BodySourceView : MonoBehaviour
     
     private void UpdateBodyObject(Body body, GameObject bodyObject)
     {
-        //Debug.Log("grabar-->"+ grabar);
-
         // Update joints
         foreach (JointType _joint in _joints) //por cada joint de la lista de articulaciones de arriba
         {
-            // Get new target position
+            // Get new target position of handRight
             Joint sourceJoint = body.Joints[JointType.HandRight]; //_joint por JointType.HandRight
             targetPosition = GetVector3FromJoint(sourceJoint);
             targetPosition.z = 0;  
@@ -141,6 +140,10 @@ public class BodySourceView : MonoBehaviour
             Transform jointObject = bodyObject.transform.Find(JointType.HandRight.ToString());
             jointObject.position = targetPosition;
 
+            //Get position of shoulderRight
+            Joint jointShoulder = body.Joints[JointType.ShoulderRight];
+            shoulderposition = GetVector3FromJoint(jointShoulder);
+            shoulderposition.z = 0;
         }
 
         if (grabar == true)
@@ -158,39 +161,41 @@ public class BodySourceView : MonoBehaviour
 
         if (dictCoordenadas.Count == 0)
         {
-            // dictCoordenadas.Add(JointType.HandRight, GetVector3FromJoint(dictJoints[JointType.HandRight]));
-
            // dictCoordenadas[JointType.HandRight] = new List<Vector3>();
             dictCoordenadas.Add(JointType.HandRight, new List<Vector3>());
             dictCoordenadas[JointType.HandRight].Add(GetVector3FromJoint(dictJoints[JointType.HandRight]));
-            return;
 
+            dictCoordenadas.Add(JointType.ShoulderRight, new List<Vector3>());
+            dictCoordenadas[JointType.ShoulderRight].Add(GetVector3FromJoint(dictJoints[JointType.ShoulderRight]));
+           
+            return;
         }
 
-        float dist = Vector3.Distance(targetPosition, dictCoordenadas[JointType.HandRight][dictCoordenadas[JointType.HandRight].Count - 1]);
+        float distM = Vector3.Distance(targetPosition, dictCoordenadas[JointType.HandRight][dictCoordenadas[JointType.HandRight].Count - 1]);
+        float distH = Vector3.Distance(shoulderposition, dictCoordenadas[JointType.ShoulderRight][dictCoordenadas[JointType.ShoulderRight].Count - 1]);
+
         #endregion
 
         #region Imprime y anyade coordenda a la lista de coordenadas almacenadas en coordenadaMano si la distancia es mayor a 2,6(por ejemplo)
 
-        if (dist >= 0.1)    //si la distancia entre la posicion actual (targetposition) y la anterior es mayr o igual a 0,6, guardala como nueva coordenada de la mano
+        if (distM >= 0.1 && distH >= 0.2)    //si la distancia entre la posicion actual (targetposition) y la anterior es mayr o igual a 0,6, guardala como nueva coordenada de la mano
         {
 
             dictCoordenadas[JointType.HandRight].Add(GetVector3FromJoint(dictJoints[JointType.HandRight]));
+            dictCoordenadas[JointType.ShoulderRight].Add(GetVector3FromJoint(dictJoints[JointType.ShoulderRight]));
 
             foreach (KeyValuePair<JointType, List<Vector3>> coordenadaGuardada in dictCoordenadas)
             {
                 foreach(Vector3 coordenada in coordenadaGuardada.Value)
                 {
-
                 }
                 Debug.Log("coordenadaMano " + coordenadaGuardada);
             }
 
-            Debug.Log("Dist" + dist); //imprimir comprobacion
+            Debug.Log("Dist" + distM); //imprimir comprobacion
             //Debug.Log(coordenadaMano.Count);  //imprimir comprobacion
          }
         #endregion
-        
     }
 
     private Vector3 GetVector3FromJoint(Joint joint)
@@ -204,12 +209,13 @@ public class BodySourceView : MonoBehaviour
     {
         if(listDict.Count != 0)
         {
-            short numPartes = 5;
-            int tamanyoParte = listDict.Count / numPartes;
+            #region CALCULO DEL PROMEDIO DE COORDENADAS DE LA MANO
+            short numPartesM = 5;
+            int tamanyoParte = listDict.Count / numPartesM;
 
-            List<Vector3> coordenadaResultPromed = new List<Vector3>();
+            List<Vector3> coordenadaResultPromedM = new List<Vector3>();
 
-            for (int parte = 0; parte < numPartes; parte++)
+            for (int parte = 0; parte < numPartesM; parte++)
             {
                 float xParte = 0.0f, yParte = 0.0f, zParte = 0.0f;  //Agregue "f" al final para decirle al compilador que es un flotante
 
@@ -230,11 +236,36 @@ public class BodySourceView : MonoBehaviour
 
 
                 Vector3 coordXYZ = new Vector3(xPartVector, yPartVector, zPartVector);
-                coordenadaResultPromed.Add(coordXYZ);
+                coordenadaResultPromedM.Add(coordXYZ);
                              
             }
-            Debug.Log(coordenadaResultPromed);
-            FileGrabacion(coordenadaResultPromed);
+            Debug.Log(coordenadaResultPromedM);
+            FileGrabacion(coordenadaResultPromedM);
+            #endregion
+
+
+            #region CALCULO DE LA COORDENADA DEL HOMBRO
+
+            List<Vector3> coordenadaResultPromedH = new List<Vector3>();
+            //float xParteH = 0.0f, yParteH = 0.0f, zParteH = 0.0f;  //Agregue "f" al final para decirle al compilador que es un flotante
+
+            foreach (KeyValuePair<JointType, List<Vector3>> coordenadaGuardada in dictCoordenadas)
+            {
+                foreach (Vector3 coordenada in coordenadaGuardada.Value)
+                {
+                    //xParteH += listDict[].x;
+                    //yParteH += listDict[].y;
+                    //zParteH += listDict[].z;
+
+                }
+                //float xPartVector = xParte; 
+                //float yPartVector = yParte;
+                //float zPartVector = zParte;
+
+                //Vector3 coordXYZ_H = new Vector3(xPartVector, yPartVector, zPartVector);
+                //coordenadaResultPromedM.Add(coordXYZ);
+            }
+            #endregion
         }
     }
     #endregion
@@ -253,10 +284,14 @@ public class BodySourceView : MonoBehaviour
             //Debug.Log("Se ha creado el archivo y anyadido " + margumento);
         }
     }
-#endregion
-}
+    #endregion
 
+    //public void calculoVectorHM()
+    //{
+    //    //float d;
+    //    //d = Mathf.Sqrt()
+    //}
+}
 //crear los vectores de hombro-mano, hombro-hombro, cadera-cadera y de cadera-hombro
 //con hombro-cadera y hombro-mano sacamos el angulo que forman 
 //con hombro-hombro y cadera-cadera comprobar que se mantienen paralelas o con igual angulo que el inicial
-
