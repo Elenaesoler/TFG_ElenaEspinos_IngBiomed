@@ -12,7 +12,7 @@ public class BodySourceView : MonoBehaviour
     public GameObject mJointObject;
 
     private Dictionary<ulong, GameObject> mBodies = new Dictionary<ulong, GameObject>();
-    private List<JointType> _joints = new List<JointType>
+    private List<JointType> _joints = new List<JointType> 
     {
         JointType.HandLeft,
         JointType.HandRight,         
@@ -20,7 +20,7 @@ public class BodySourceView : MonoBehaviour
         JointType.ShoulderLeft,
     };
 
-    private List<JointType> jointsToSave = new List<JointType>
+    private List<JointType> jointsToSave = new List<JointType>  //lista variable de joints que queremos
     {
         JointType.HandRight,
         JointType.ElbowRight,
@@ -240,6 +240,7 @@ public class BodySourceView : MonoBehaviour
         if(listDict.Count != 0)
         {
             #region CALCULO DEL PROMEDIO DE COORDENADAS DE LA MANO
+            
             short numPartesM = 5;
             int tamanyoParte = listDict.Count / numPartesM;
 
@@ -271,30 +272,7 @@ public class BodySourceView : MonoBehaviour
             }
             Debug.Log(coordenadaResultPromedM);
             FileGrabacion(coordenadaResultPromedM, joint);
-            #endregion
 
-
-            #region CALCULO DE LA COORDENADA DEL HOMBRO
-
-            List<Vector3> coordenadaResultPromedH = new List<Vector3>();
-            //float xParteH = 0.0f, yParteH = 0.0f, zParteH = 0.0f;  //Agregue "f" al final para decirle al compilador que es un flotante
-
-            foreach (KeyValuePair<JointType, List<Vector3>> coordenadaGuardada in dictCoordenadas)
-            {
-                foreach (Vector3 coordenada in coordenadaGuardada.Value)
-                {
-                    //xParteH += listDict[].x;
-                    //yParteH += listDict[].y;
-                    //zParteH += listDict[].z;
-
-                }
-                //float xPartVector = xParte; 
-                //float yPartVector = yParte;
-                //float zPartVector = zParte;
-
-                //Vector3 coordXYZ_H = new Vector3(xPartVector, yPartVector, zPartVector);
-                //coordenadaResultPromedM.Add(coordXYZ);
-            }
             #endregion
         }
     }
@@ -309,18 +287,50 @@ public class BodySourceView : MonoBehaviour
 
             foreach (Vector3 argumento in listPromed) 
             {
-                string margumento = argumento.ToString();
+                string margumento = argumento.x.ToString() + ";" + argumento.y.ToString() + ";" + argumento.z.ToString();
                 output.WriteLine(margumento);
             }
             
-            //Debug.Log("Se ha creado el archivo y anyadido " + margumento);
+           
         }
     }
     #endregion
 
-    //public void calculoVectorHM()
-    //{
-    //    //float d;
-    //    //d = Mathf.Sqrt()
-    //}
+    public void ReadFile()
+    {
+        StreamReader sr;
+        string line;
+
+        if(File.Exists("Archivo.txt"))
+        {
+            JointType joint = (JointType) 0;
+            Dictionary<JointType, List<Vector3>> dict = new Dictionary<JointType, List<Vector3>>();
+            sr = new StreamReader("Archivo.txt");
+            line = sr.ReadLine();
+
+            while (line != null)
+            {
+                Debug.Log(line);
+
+                if (line.Length <= 2)
+                {
+                    joint = (JointType)int.Parse(line);
+                    dict.Add(joint, new List<Vector3>());
+                }
+                else
+                {
+                    string[] items = line.Split(';');
+                    dict[joint].Add(new Vector3(float.Parse(items[0]), float.Parse(items[1]), float.Parse(items[2])));
+                }
+
+                line = sr.ReadLine();
+
+            }
+
+        }  
+
+
+
+
+    }
 }
