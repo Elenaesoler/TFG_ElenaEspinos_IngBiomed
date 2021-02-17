@@ -26,6 +26,7 @@ public class BodySourceView : MonoBehaviour
         JointType.ElbowRight,
         JointType.ShoulderRight,
     };
+    Dictionary<JointType, List<Vector3>> dict = new Dictionary<JointType, List<Vector3>>();
 
     private Dictionary<JointType, List<Vector3>> dictCoordenadas = new Dictionary<JointType, List<Vector3>>();
 
@@ -96,15 +97,18 @@ public class BodySourceView : MonoBehaviour
         botonGrabar.SetActive(false);
         botonFin.SetActive(false);
         Debug.Log("Dentro del boton Jugar");
+        //ReadFile(); /* Se instancia desde unity */
+        //CalcularVectores();
+        //Setbubbles();
+
     }
-        public void CallbackBotonGrabar()
+    public void CallbackBotonGrabar()
     {
         grabar = true;
         Debug.Log("Comienza a grabar el ejercicio y desaparece el boton'Grabar' ");
         botonGrabar.SetActive(false);
         botonFin.SetActive(true);
     }
-
     public void CallbackBotonFin()
     {
         grabar = false;
@@ -112,11 +116,9 @@ public class BodySourceView : MonoBehaviour
         foreach (KeyValuePair<JointType, List<Vector3>> coordenadaGuardada in dictCoordenadas)
         {
             promedCoordinates(coordenadaGuardada.Value, coordenadaGuardada.Key);
-
         }
         
         botonGrabar.SetActive(true);
-       
     }
 
     private GameObject CreateBodyObject(ulong id)
@@ -167,34 +169,22 @@ public class BodySourceView : MonoBehaviour
     public void GrabarEjercicio(Dictionary<JointType, Joint> dictJoints)
     {
         #region Calculo de la distancia entre coordenada actual y coordenada anterior
+        #region comentario
         //calculo de la distancia entre la posicion actual de la mano y la anterior.
         //al inicio no existe ninguna coordenada coordenadaMano.Count ==0 entonces anyade la primera 
         //despues, es cuando comienza a calcular distancias. 
-
-       // if (dictCoordenadas.Count == 0)
+        #endregion
+        // if (dictCoordenadas.Count == 0)
         //{
-            foreach(JointType articulacion in jointsToSave)
+        foreach (JointType articulacion in jointsToSave)
             {
             //    //añadir key de que sea un joint
                 if(!dictCoordenadas.ContainsKey(articulacion))
                     dictCoordenadas.Add(articulacion, new List<Vector3>());  
 
                 dictCoordenadas[articulacion].Add(GetVector3FromJoint(dictJoints[articulacion]));
-            //    foreach (KeyValuePair<JointType, List<Vector3>> listjoint in dictCoordenadas)
-            //    {
-            //        //añadir dentro de cada key<joint> una lista 
-                      //dictCoordenadas[articulacion.Key].Add(GetVector3FromJoint(dictJoints[articulacion.key]));
-            //    }
+            //  
             }
-
-            
-            /*
-            dictCoordenadas.Add(JointType.HandRight, new List<Vector3>());
-            dictCoordenadas[JointType.HandRight].Add(GetVector3FromJoint(dictJoints[JointType.HandRight]));
-
-            dictCoordenadas.Add(JointType.ShoulderRight, new List<Vector3>());
-            dictCoordenadas[JointType.ShoulderRight].Add(GetVector3FromJoint(dictJoints[JointType.ShoulderRight]));
-            */
            
            // return;
       //  }
@@ -209,11 +199,6 @@ public class BodySourceView : MonoBehaviour
         //if (distM >= 0.1 && distH >= 0.2)    //si la distancia entre la posicion actual y la anterior es mayr o igual a 0,6, guardala 
         //{
 
-  
-
-           // dictCoordenadas[JointType.HandRight].Add(GetVector3FromJoint(dictJoints[JointType.HandRight]));
-            //dictCoordenadas[JointType.ShoulderRight].Add(GetVector3FromJoint(dictJoints[JointType.ShoulderRight]));
-
             foreach (KeyValuePair<JointType, List<Vector3>> coordenadaGuardada in dictCoordenadas)
             {
                 foreach(Vector3 coordenada in coordenadaGuardada.Value)
@@ -221,7 +206,6 @@ public class BodySourceView : MonoBehaviour
                 }
                 Debug.Log("coordenadaMano " + coordenadaGuardada);
             }
-
             Debug.Log("Dist" + distM); 
             //Debug.Log(coordenadaMano.Count);  
          //}
@@ -265,14 +249,12 @@ public class BodySourceView : MonoBehaviour
                 Debug.Log("Parte" + parte + "coordenada Y" + yPartVector);
                 Debug.Log("Parte" + parte + "coordenada Z" + zPartVector);
 
-
                 Vector3 coordXYZ = new Vector3(xPartVector, yPartVector, zPartVector);
                 coordenadaResultPromedM.Add(coordXYZ);
                              
             }
             Debug.Log(coordenadaResultPromedM);
             FileGrabacion(coordenadaResultPromedM, joint);
-
             #endregion
         }
     }
@@ -289,9 +271,7 @@ public class BodySourceView : MonoBehaviour
             {
                 string margumento = argumento.x.ToString() + ";" + argumento.y.ToString() + ";" + argumento.z.ToString();
                 output.WriteLine(margumento);
-            }
-            
-           
+            }           
         }
     }
     #endregion
@@ -304,7 +284,7 @@ public class BodySourceView : MonoBehaviour
         if(File.Exists("Archivo.txt"))
         {
             JointType joint = (JointType) 0;
-            Dictionary<JointType, List<Vector3>> dict = new Dictionary<JointType, List<Vector3>>();
+            
             sr = new StreamReader("Archivo.txt");
             line = sr.ReadLine();
 
@@ -324,13 +304,31 @@ public class BodySourceView : MonoBehaviour
                 }
 
                 line = sr.ReadLine();
-
             }
-
-        }  
-
-
-
-
+        }
+        foreach (KeyValuePair<JointType, List<Vector3>> coordenaLeida in dict)
+        {
+            CalculoVectores(coordenaLeida.Value, coordenaLeida.Key);
+        }
     }
+    public Vector3 CalculoVectores(List<Vector3> listDict, JointType joint)
+    {
+        //calculo de los vectores directores con la lectura del diccionario resultante de la lectura del archivo 
+        //Vector3 vHombroMano = new Vector3();
+
+        foreach(KeyValuePair<JointType, List<Vector3>> x in dict) 
+        {
+            Debug.Log("Joint" + x.Key);
+            foreach (Vector3 coordenada in x.Value)
+            {
+                //coordXh, coordYh, coordZh 
+                //coordXm, coordYm, coordZm
+                Debug.Log(coordenada);
+                //vHombroMano  = (coordXh - coordXm, coordYh - coordYm, coordZh - coordZm)
+            }
+        }
+
+        Vector3 a = new Vector3(1, 2, 3);
+        return a ;
+    }  
 }
