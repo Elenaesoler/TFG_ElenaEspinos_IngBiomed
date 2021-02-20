@@ -316,16 +316,25 @@ public class BodySourceView : MonoBehaviour
         //calculo de los vectores directores con la lectura del diccionario resultante de la lectura del archivo 
         //Vector3 vHombroMano = new Vector3();
 
-        foreach(KeyValuePair<JointType, List<Vector3>> x in dict) 
+        foreach(KeyValuePair<JointType, List<Vector3>> listaLectura in dict) 
         {
-            Debug.Log("Joint" + x.Key);
-            foreach (Vector3 coordenada in x.Value)
+            Debug.Log("Joint" + listaLectura.Key);
+            if(listaLectura.Key == JointType.ShoulderRight)
             {
-                //coordXh, coordYh, coordZh 
-                //coordXm, coordYm, coordZm
-                Debug.Log(coordenada);
-                //vHombroMano  = (coordXh - coordXm, coordYh - coordYm, coordZh - coordZm)
+                foreach (Vector3 coordenada in listaLectura.Value)
+                {
+                    float coordHombrox = coordenada.x;
+                    float coordHombroy = coordenada.y;
+                    float coordHombroz = coordenada.z;
+                   
+                    Debug.Log(coordHombrox + "," + coordHombroy + "," + coordHombroz);
+                    //vHombroMano  = (coordXh - coordXm, coordYh - coordYm, coordZh - coordZm)
+                }
             }
+            if (listaLectura.Key == JointType.ShoulderRight) 
+            { 
+            }
+                
         }
 
         Vector3 a = new Vector3(1, 2, 3);
