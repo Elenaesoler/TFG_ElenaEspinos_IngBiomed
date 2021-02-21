@@ -26,7 +26,8 @@ public class BodySourceView : MonoBehaviour
         JointType.ElbowRight,
         JointType.ShoulderRight,
     };
-    Dictionary<JointType, List<Vector3>> dict = new Dictionary<JointType, List<Vector3>>();
+
+    private Dictionary<JointType, Joint> currentJoint = new Dictionary<JointType, Joint>();
 
     private Dictionary<JointType, List<Vector3>> dictCoordenadas = new Dictionary<JointType, List<Vector3>>();
 
@@ -86,6 +87,7 @@ public class BodySourceView : MonoBehaviour
                     mBodies[body.TrackingId] = CreateBodyObject(body.TrackingId);
 
                 // Update positions
+                currentJoint = body.Joints;
                 UpdateBodyObject(body, mBodies[body.TrackingId]);
             }
         }
@@ -97,9 +99,11 @@ public class BodySourceView : MonoBehaviour
         botonGrabar.SetActive(false);
         botonFin.SetActive(false);
         Debug.Log("Dentro del boton Jugar");
-        //ReadFile(); /* Se instancia desde unity */
-        //CalcularVectores();
-        //Setbubbles();
+        Dictionary<JointType, List<Vector3>> dict = ReadFile(); /* Se instancia desde unity */
+        CalculoVectores(dict);
+
+       
+        //Setbubbles(CalculoVectores(ReadFile()));
 
     }
     public void CallbackBotonGrabar()
@@ -155,9 +159,9 @@ public class BodySourceView : MonoBehaviour
             jointObject.position = targetPosition;
 
             //Get position of shoulderRight
-            Joint jointShoulder = body.Joints[JointType.ShoulderRight];
-            shoulderposition = GetVector3FromJoint(jointShoulder);
-            shoulderposition.z = 0;
+            //Joint jointShoulder = body.Joints[JointType.ShoulderRight];
+            //shoulderposition = GetVector3FromJoint(jointShoulder);
+            //shoulderposition.z = 0;
         }
 
         if (grabar == true)
@@ -276,8 +280,10 @@ public class BodySourceView : MonoBehaviour
     }
     #endregion
 
-    public void ReadFile()
+    public Dictionary<JointType, List<Vector3>> ReadFile()
     {
+
+        Dictionary<JointType, List<Vector3>> dict = new Dictionary<JointType, List<Vector3>>();
         StreamReader sr;
         string line;
 
@@ -306,38 +312,71 @@ public class BodySourceView : MonoBehaviour
                 line = sr.ReadLine();
             }
         }
-        foreach (KeyValuePair<JointType, List<Vector3>> coordenaLeida in dict)
-        {
-            CalculoVectores(coordenaLeida.Value, coordenaLeida.Key);
-        }
+       
+        return dict;
     }
-    public Vector3 CalculoVectores(List<Vector3> listDict, JointType joint)
+
+  
+    public List<JointType> bubbleSort(List<JointType> numjoint) 
+    {
+
+        JointType temp;
+        for(int j = 0; j <= numjoint.Count -2; j++)
+        {
+            for(int i =0; i <= numjoint.Count -2; i++)
+            {
+                if(numjoint[i] > numjoint[i+1])
+                {
+                    temp = numjoint[i + 1];
+                    numjoint[i + 1] = numjoint[i];
+                    numjoint[i] = temp;
+                }
+            }
+        }
+        foreach(JointType p  in numjoint)
+        {
+            Debug.Log(p + " ");
+        }
+        
+        return numjoint;
+
+    }
+
+
+    public Vector3 CalculoVectores(Dictionary<JointType, List<Vector3>> dict)
     {
         //calculo de los vectores directores con la lectura del diccionario resultante de la lectura del archivo 
         //Vector3 vHombroMano = new Vector3();
 
-        foreach(KeyValuePair<JointType, List<Vector3>> listaLectura in dict) 
+        List<JointType> listNumJoints = new List<JointType>();
+
+        foreach (KeyValuePair<JointType, List<Vector3>> coordenaLeida in dict)
         {
-            Debug.Log("Joint" + listaLectura.Key);
-            if(listaLectura.Key == JointType.ShoulderRight)
+
+            listNumJoints.Add(coordenaLeida.Key);
+        }
+        listNumJoints = bubbleSort(listNumJoints);
+
+        Vector3[,] v = new Vector3[listNumJoints.Count -1 ,dict[listNumJoints[0]].Count];
+        for (int i = 0; i <= listNumJoints.Count -1; i++)
+        {
+            for (int j = 0; j < dict[listNumJoints[i]].Count  ;j++)
             {
-                foreach (Vector3 coordenada in listaLectura.Value)
-                {
-                    float coordHombrox = coordenada.x;
-                    float coordHombroy = coordenada.y;
-                    float coordHombroz = coordenada.z;
-                   
-                    Debug.Log(coordHombrox + "," + coordHombroy + "," + coordHombroz);
-                    //vHombroMano  = (coordXh - coordXm, coordYh - coordYm, coordZh - coordZm)
-                }
-            }
-            if (listaLectura.Key == JointType.ShoulderRight) 
-            { 
-            }
-                
+                v[i, j].x = dict[listNumJoints[i]][j].x - dict[listNumJoints[i + 1]][j].x;
+                v[i, j].y = dict[listNumJoints[i]][j].y - dict[listNumJoints[i + 1]][j].y;
+                v[i, j].z = dict[listNumJoints[i]][j].z - dict[listNumJoints[i + 1]][j].z;
+            }   
         }
 
-        Vector3 a = new Vector3(1, 2, 3);
-        return a ;
+        List<Vector3> currentPosition = new List<Vector3>();
+
+        for(int i=0; i <= listNumJoints.Count; i++)
+        {
+            currentPosition.Add(GetVector3FromJoint(currentJoint[listNumJoints[i]]));
+        }
+
+
+     
+           
     }  
 }
