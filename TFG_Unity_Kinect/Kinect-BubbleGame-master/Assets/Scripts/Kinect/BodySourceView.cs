@@ -343,7 +343,7 @@ public class BodySourceView : MonoBehaviour
     }
 
 
-    public Vector3 CalculoVectores(Dictionary<JointType, List<Vector3>> dict)
+    public void CalculoVectores(Dictionary<JointType, List<Vector3>> dict)
     {
         //calculo de los vectores directores con la lectura del diccionario resultante de la lectura del archivo 
         //Vector3 vHombroMano = new Vector3();
@@ -352,7 +352,6 @@ public class BodySourceView : MonoBehaviour
 
         foreach (KeyValuePair<JointType, List<Vector3>> coordenaLeida in dict)
         {
-
             listNumJoints.Add(coordenaLeida.Key);
         }
         listNumJoints = bubbleSort(listNumJoints);
@@ -374,7 +373,7 @@ public class BodySourceView : MonoBehaviour
         {
             currentPosition.Add(GetVector3FromJoint(currentJoint[listNumJoints[i]]));
         }
-
+        //return currentPosition;
 
      
            
