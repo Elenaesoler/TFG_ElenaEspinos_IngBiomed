@@ -10,6 +10,7 @@ public class BodySourceView : MonoBehaviour
 {
     public BodySourceManager mBodySourceManager;
     public GameObject mJointObject;
+    private int numBodies = 0;
 
     private Dictionary<ulong, GameObject> mBodies = new Dictionary<ulong, GameObject>();
     private List<JointType> _joints = new List<JointType> 
@@ -44,6 +45,8 @@ public class BodySourceView : MonoBehaviour
     {
         #region Get Kinect data
         Body[] data = mBodySourceManager.GetData();
+        numBodies = 0;
+        Debug.Log(numBodies);
         if (data == null)
             return;
 
@@ -82,6 +85,7 @@ public class BodySourceView : MonoBehaviour
 
             if (body.IsTracked)
             {
+                numBodies += 1;
                 // If body isn't tracked, create body
                 if (!mBodies.ContainsKey(body.TrackingId))
                     mBodies[body.TrackingId] = CreateBodyObject(body.TrackingId);
@@ -96,14 +100,17 @@ public class BodySourceView : MonoBehaviour
     }
     public void CallbackBotonJugar()
     {
-        botonGrabar.SetActive(false);
-        botonFin.SetActive(false);
-        Debug.Log("Dentro del boton Jugar");
-        Dictionary<JointType, List<Vector3>> dict = ReadFile(); /* Se instancia desde unity */
-        CalculoVectores(dict);
+        
+            if (numBodies > 0)
+            {
+                botonGrabar.SetActive(false);
+                botonFin.SetActive(false);
+                Debug.Log("Dentro del boton Jugar");
+                Dictionary<JointType, List<Vector3>> dict = ReadFile(); /* Se instancia desde unity */
+                List<Vector3> CP = CalculoVectores(dict);
 
-       
-        //Setbubbles(CalculoVectores(ReadFile()));
+                //Setbubbles(CalculoVectores(ReadFile()));
+            }
 
     }
     public void CallbackBotonGrabar()
@@ -316,7 +323,6 @@ public class BodySourceView : MonoBehaviour
         return dict;
     }
 
-  
     public List<JointType> bubbleSort(List<JointType> numjoint) 
     {
 
@@ -343,7 +349,7 @@ public class BodySourceView : MonoBehaviour
     }
 
 
-    public void CalculoVectores(Dictionary<JointType, List<Vector3>> dict)
+    public List<Vector3> CalculoVectores(Dictionary<JointType, List<Vector3>> dict)
     {
         //calculo de los vectores directores con la lectura del diccionario resultante de la lectura del archivo 
         //Vector3 vHombroMano = new Vector3();
@@ -354,10 +360,10 @@ public class BodySourceView : MonoBehaviour
         {
             listNumJoints.Add(coordenaLeida.Key);
         }
-        listNumJoints = bubbleSort(listNumJoints);
+        listNumJoints = bubbleSort(listNumJoints); //ORDENA LA LISTA POR JOINTS CRECIENTE
 
         Vector3[,] v = new Vector3[listNumJoints.Count -1 ,dict[listNumJoints[0]].Count];
-        for (int i = 0; i <= listNumJoints.Count -1; i++)
+        for (int i = 0; i < listNumJoints.Count -1; i++)
         {
             for (int j = 0; j < dict[listNumJoints[i]].Count  ;j++)
             {
@@ -366,16 +372,43 @@ public class BodySourceView : MonoBehaviour
                 v[i, j].z = dict[listNumJoints[i]][j].z - dict[listNumJoints[i + 1]][j].z;
             }   
         }
-
+        
+        //Debug.Log(v);
         List<Vector3> currentPosition = new List<Vector3>();
 
-        for(int i=0; i <= listNumJoints.Count; i++)
+        for(int i=0; i < listNumJoints.Count; i++)
         {
             currentPosition.Add(GetVector3FromJoint(currentJoint[listNumJoints[i]]));
         }
-        //return currentPosition;
 
-     
-           
+        //// calcular distancia entre joints //modulo de un vector 
+        List<float> listaDistancia = new List<float>();
+        for (int i = 0; i < currentPosition.Count - 1; i++)
+        {
+            float distancia = Vector3.Distance(currentPosition[i], currentPosition[i + 1]);
+            listaDistancia.Add(distancia);
+        }
+
+
+
+        List<Vector3> listaParesV = new List<Vector3>();
+        
+
+        for (int i = 0; i < v.GetLength(1) ; i++) //Acceso a cada columna de v[,]
+        {
+            for (int j = 0; j < v.GetLength(0); j++)//
+            {
+                listaParesV.Add(v[i, j]);
+            }
+            calculoPosiciones(listaParesV, currentPosition[0], listaDistancia);
+        }
+        
+        return currentPosition;
     }  
+    public void calculoPosiciones(List<Vector3> listaParesVectores, Vector3 posicionLive, List<float> listaDistancia)
+    {
+        Vector3 posicionFinalObjeto = new Vector3();
+
+        
+    }
 }
