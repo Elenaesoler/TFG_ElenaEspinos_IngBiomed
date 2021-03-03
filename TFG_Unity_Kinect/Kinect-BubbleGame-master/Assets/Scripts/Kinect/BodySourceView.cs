@@ -389,8 +389,6 @@ public class BodySourceView : MonoBehaviour
             listaDistancia.Add(distancia);
         }
 
-
-
         List<Vector3> listaParesV = new List<Vector3>();
         
 
@@ -405,9 +403,39 @@ public class BodySourceView : MonoBehaviour
         
         return currentPosition;
     }  
-    public void calculoPosiciones(List<Vector3> listaParesVectores, Vector3 posicionLive, List<float> listaDistancia)
+    public List<Vector3> calculoPosiciones(List<Vector3> listaParesVectores, Vector3 posicionLive, List<float> listaDistancia)
     {
-        Vector3 posicionFinalObjeto = new Vector3();
+        List<Vector3> posicionFinalObjeto = new List<Vector3>();
+                
+        // 1_ Vector listaParesVectores (x,y,z)
+        //2_ Distancia d dada listaDistancia
+        //3_ Sacar vector unitario Vu de listaParesVectores
+        //4_ Vector resultante es Vr= Vu * d 
+        //5_ la posicion deseada final P = coordenada J1(x,y,z) + Vr
+
+        //Vector3 v = new Vector3();
+        
+        //v = listaParesVectores[0].Normalize();
+                
+        //Vector3 posicionF = new Vector3();
+
+        //posicionF = posicionLive + (v * listaDistancia[0]);
+
+        
+        //for (int i = 0; i < vectorUnitario.Count; i++)
+        //{
+        //    vectorResult.Add(vectorUnitario[i] * listaDistancia[i]);
+        //}
+            
+        //List<Vector3> posicionDeseada = new List<Vector3>();
+        //Vector3 p= new Vector3();
+        //for (int i = 0; i < vectorResult.Count; i++)
+        //{
+        //    p = posicionLive[i] + vectorResult[i];
+        //    posicionDeseada.Add(p);
+        //}
+
+        //return posicionDeseada;
 
         
     }
