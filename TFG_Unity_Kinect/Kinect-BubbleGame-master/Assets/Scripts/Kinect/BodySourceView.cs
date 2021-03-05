@@ -46,7 +46,7 @@ public class BodySourceView : MonoBehaviour
         #region Get Kinect data
         Body[] data = mBodySourceManager.GetData();
         numBodies = 0;
-        Debug.Log(numBodies);
+        //Debug.Log(numBodies);
         if (data == null)
             return;
 
@@ -303,7 +303,7 @@ public class BodySourceView : MonoBehaviour
 
             while (line != null)
             {
-                Debug.Log(line);
+                //Debug.Log(line);
 
                 if (line.Length <= 2)
                 {
@@ -390,53 +390,44 @@ public class BodySourceView : MonoBehaviour
         }
 
         List<Vector3> listaParesV = new List<Vector3>();
-        
+        List<Vector3> posicionFinalObjeto = new List<Vector3>();
 
         for (int i = 0; i < v.GetLength(1) ; i++) //Acceso a cada columna de v[,]
         {
             for (int j = 0; j < v.GetLength(0); j++)//
             {
-                listaParesV.Add(v[i, j]);
+                listaParesV.Add(v[j, i]);
             }
-            calculoPosiciones(listaParesV, currentPosition[0], listaDistancia);
+            Debug.Log("ListaParesVectores: " + listaParesV.Count + ", ListaDistancia: " + listaDistancia.Count);
+            posicionFinalObjeto.Add(calculoPosiciones(listaParesV, currentPosition[0], listaDistancia));
+
+            listaParesV.Clear();
         }
         
-        return currentPosition;
+        return posicionFinalObjeto;
     }  
-    public List<Vector3> calculoPosiciones(List<Vector3> listaParesVectores, Vector3 posicionLive, List<float> listaDistancia)
+    public Vector3 calculoPosiciones(List<Vector3> listaParesVectores, Vector3 posicionLive, List<float> listaDistancia)
     {
-        List<Vector3> posicionFinalObjeto = new List<Vector3>();
-                
+        #region explicacion metodo
         // 1_ Vector listaParesVectores (x,y,z)
         //2_ Distancia d dada listaDistancia
         //3_ Sacar vector unitario Vu de listaParesVectores
         //4_ Vector resultante es Vr= Vu * d 
         //5_ la posicion deseada final P = coordenada J1(x,y,z) + Vr
-
-        //Vector3 v = new Vector3();
+        #endregion
         
-        //v = listaParesVectores[0].Normalize();
-                
-        //Vector3 posicionF = new Vector3();
 
-        //posicionF = posicionLive + (v * listaDistancia[0]);
+        Vector3 vectorUnit= listaParesVectores[0] / listaParesVectores[0].magnitude;
 
-        
-        //for (int i = 0; i < vectorUnitario.Count; i++)
-        //{
-        //    vectorResult.Add(vectorUnitario[i] * listaDistancia[i]);
-        //}
-            
-        //List<Vector3> posicionDeseada = new List<Vector3>();
-        //Vector3 p= new Vector3();
-        //for (int i = 0; i < vectorResult.Count; i++)
-        //{
-        //    p = posicionLive[i] + vectorResult[i];
-        //    posicionDeseada.Add(p);
-        //}
+        Vector3 vectUnitDist = vectorUnit * listaDistancia[0];
+        Vector3 c = vectUnitDist + posicionLive;
+        Vector3 coord;
 
-        //return posicionDeseada;
+        if (listaParesVectores.Count > 1 && listaDistancia.Count > 1)
+            coord = calculoPosiciones(listaParesVectores.GetRange(1, listaParesVectores.Count-1), c, listaDistancia.GetRange(1, listaDistancia.Count-1));
+        else
+            coord = c;
 
-        
+        return coord;
     }
 }
