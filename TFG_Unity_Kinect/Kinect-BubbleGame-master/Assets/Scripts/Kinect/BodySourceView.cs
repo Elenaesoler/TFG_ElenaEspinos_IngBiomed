@@ -100,24 +100,24 @@ public class BodySourceView : MonoBehaviour
     }
     public void CallbackBotonJugar()
     {
-        
-            if (numBodies > 0)
-            {
-                botonGrabar.SetActive(false);
-                botonFin.SetActive(false);
-                Debug.Log("Dentro del boton Jugar");
-                Dictionary<JointType, List<Vector3>> dict = ReadFile(); /* Se instancia desde unity */
-                List<Vector3> CP = CalculoVectores(dict);
+        if (numBodies > 0)
+        {
+            botonGrabar.SetActive(false);
+            botonFin.SetActive(false);
+            botonJugar.SetActive(false);
+            Debug.Log("Dentro del boton Jugar");
+            Dictionary<JointType, List<Vector3>> dict = ReadFile(); /* Se instancia desde unity */
+            List<Vector3> CP = CalculoVectores(dict);
 
-                //Setbubbles(CalculoVectores(ReadFile()));
-            }
-
+            //Setbubbles(CalculoVectores(ReadFile()));
+        }
     }
     public void CallbackBotonGrabar()
     {
         grabar = true;
         Debug.Log("Comienza a grabar el ejercicio y desaparece el boton'Grabar' ");
         botonGrabar.SetActive(false);
+        botonJugar.SetActive(false);
         botonFin.SetActive(true);
     }
     public void CallbackBotonFin()
@@ -130,6 +130,7 @@ public class BodySourceView : MonoBehaviour
         }
         
         botonGrabar.SetActive(true);
+        botonJugar.SetActive(true);
     }
 
     private GameObject CreateBodyObject(ulong id)
@@ -180,52 +181,38 @@ public class BodySourceView : MonoBehaviour
     public void GrabarEjercicio(Dictionary<JointType, Joint> dictJoints)
     {
         #region Calculo de la distancia entre coordenada actual y coordenada anterior
-        #region comentario
-        //calculo de la distancia entre la posicion actual de la mano y la anterior.
-        //al inicio no existe ninguna coordenada coordenadaMano.Count ==0 entonces anyade la primera 
-        //despues, es cuando comienza a calcular distancias. 
-        #endregion
+        
         // if (dictCoordenadas.Count == 0)
         //{
         foreach (JointType articulacion in jointsToSave)
-            {
-            //    //añadir key de que sea un joint
-                if(!dictCoordenadas.ContainsKey(articulacion))
-                    dictCoordenadas.Add(articulacion, new List<Vector3>());  
+        {
+            //añadir key de que sea un joint
+            if(!dictCoordenadas.ContainsKey(articulacion))
+                dictCoordenadas.Add(articulacion, new List<Vector3>());  
 
-                dictCoordenadas[articulacion].Add(GetVector3FromJoint(dictJoints[articulacion]));
-            //  
-            }
-           
-           // return;
-      //  }
+            dictCoordenadas[articulacion].Add(GetVector3FromJoint(dictJoints[articulacion]));
+        }
 
-        float distM = Vector3.Distance(targetPosition, dictCoordenadas[JointType.HandRight][dictCoordenadas[JointType.HandRight].Count - 1]);
-        float distH = Vector3.Distance(shoulderposition, dictCoordenadas[JointType.ShoulderRight][dictCoordenadas[JointType.ShoulderRight].Count - 1]);
+        // return;
+        //  }
 
-        #endregion
-
-        #region Imprime y anyade coordenda a la lista de coordenadas almacenadas en coordenadaMano si la distancia es mayor a 2,6(por ejemplo)
-
-        //if (distM >= 0.1 && distH >= 0.2)    //si la distancia entre la posicion actual y la anterior es mayr o igual a 0,6, guardala 
+        //float distM = Vector3.Distance(targetPosition, dictCoordenadas[JointType.HandRight][dictCoordenadas[JointType.HandRight].Count - 1]);
+        //float distH = Vector3.Distance(shoulderposition, dictCoordenadas[JointType.ShoulderRight][dictCoordenadas[JointType.ShoulderRight].Count - 1]);
+        
+        //foreach (KeyValuePair<JointType, List<Vector3>> coordenadaGuardada in dictCoordenadas)
         //{
-
-            foreach (KeyValuePair<JointType, List<Vector3>> coordenadaGuardada in dictCoordenadas)
-            {
-                foreach(Vector3 coordenada in coordenadaGuardada.Value)
-                {
-                }
-                Debug.Log("coordenadaMano " + coordenadaGuardada);
-            }
-            Debug.Log("Dist" + distM); 
-            //Debug.Log(coordenadaMano.Count);  
-         //}
+        //    foreach(Vector3 coordenada in coordenadaGuardada.Value)
+        //    {
+        //    }
+        //} 
         #endregion
     }
 
     private Vector3 GetVector3FromJoint(Joint joint)
     {
-        //multiplica la coordenada *10 por que ...????
+        //multiplica la coordenada *10 
+        //las coordenadas en kinect se expresan de 0 a 1 (+ y -)
+        //las coordenadas en el mundo unity van de 0 a 100 (+ y -)
         return new Vector3(joint.Position.X * 10, joint.Position.Y * 10, joint.Position.Z * 10);
     }
 
@@ -287,9 +274,9 @@ public class BodySourceView : MonoBehaviour
     }
     #endregion
 
+    #region Leer archivo txt y añade el contenido a un dicccionario
     public Dictionary<JointType, List<Vector3>> ReadFile()
     {
-
         Dictionary<JointType, List<Vector3>> dict = new Dictionary<JointType, List<Vector3>>();
         StreamReader sr;
         string line;
@@ -319,10 +306,11 @@ public class BodySourceView : MonoBehaviour
                 line = sr.ReadLine();
             }
         }
-       
         return dict;
     }
+    #endregion
 
+    #region Ordenar lista de joints crecientemente
     public List<JointType> bubbleSort(List<JointType> numjoint) 
     {
 
@@ -345,23 +333,24 @@ public class BodySourceView : MonoBehaviour
         }
         
         return numjoint;
-
     }
+    #endregion
 
-
+    #region calculo de pares de vectores (dados joints y coordenadas en 5 instantes) 
     public List<Vector3> CalculoVectores(Dictionary<JointType, List<Vector3>> dict)
     {
         //calculo de los vectores directores con la lectura del diccionario resultante de la lectura del archivo 
-        //Vector3 vHombroMano = new Vector3();
 
         List<JointType> listNumJoints = new List<JointType>();
 
+        //Obtiene los keys(numero correspondiente de cada joint) para ordenarlo con 'bubble sort'
         foreach (KeyValuePair<JointType, List<Vector3>> coordenaLeida in dict)
         {
             listNumJoints.Add(coordenaLeida.Key);
         }
         listNumJoints = bubbleSort(listNumJoints); //ORDENA LA LISTA POR JOINTS CRECIENTE
 
+        //Calculo de pares de vectores (Hombro-Codo, Codo-Mano)
         Vector3[,] v = new Vector3[listNumJoints.Count -1 ,dict[listNumJoints[0]].Count];
         for (int i = 0; i < listNumJoints.Count -1; i++)
         {
@@ -373,15 +362,13 @@ public class BodySourceView : MonoBehaviour
             }   
         }
         
-        //Debug.Log(v);
         List<Vector3> currentPosition = new List<Vector3>();
-
         for(int i=0; i < listNumJoints.Count; i++)
         {
             currentPosition.Add(GetVector3FromJoint(currentJoint[listNumJoints[i]]));
         }
 
-        //// calcular distancia entre joints //modulo de un vector 
+        //// calcular distancia entre joints 'en directo' (modulo de un vector)
         List<float> listaDistancia = new List<float>();
         for (int i = 0; i < currentPosition.Count - 1; i++)
         {
@@ -392,20 +379,23 @@ public class BodySourceView : MonoBehaviour
         List<Vector3> listaParesV = new List<Vector3>();
         List<Vector3> posicionFinalObjeto = new List<Vector3>();
 
-        for (int i = 0; i < v.GetLength(1) ; i++) //Acceso a cada columna de v[,]
+        for (int i = 0; i < v.GetLength(1) ; i++) //Acceso a cada columna de v[0,1]
         {
-            for (int j = 0; j < v.GetLength(0); j++)//
+            for (int j = 0; j < v.GetLength(0); j++)//Acceso a cada fila
             {
-                listaParesV.Add(v[j, i]);
+                listaParesV.Add(v[j, i]); //Anyado fila (j) y columna (i)
             }
             Debug.Log("ListaParesVectores: " + listaParesV.Count + ", ListaDistancia: " + listaDistancia.Count);
             posicionFinalObjeto.Add(calculoPosiciones(listaParesV, currentPosition[0], listaDistancia));
 
             listaParesV.Clear();
         }
-        
+  
         return posicionFinalObjeto;
-    }  
+    }
+    #endregion
+
+    #region metodo recursivo de calculo de posiciones finales de objeto
     public Vector3 calculoPosiciones(List<Vector3> listaParesVectores, Vector3 posicionLive, List<float> listaDistancia)
     {
         #region explicacion metodo
@@ -416,7 +406,6 @@ public class BodySourceView : MonoBehaviour
         //5_ la posicion deseada final P = coordenada J1(x,y,z) + Vr
         #endregion
         
-
         Vector3 vectorUnit= listaParesVectores[0] / listaParesVectores[0].magnitude;
 
         Vector3 vectUnitDist = vectorUnit * listaDistancia[0];
@@ -430,4 +419,5 @@ public class BodySourceView : MonoBehaviour
 
         return coord;
     }
+    #endregion
 }
