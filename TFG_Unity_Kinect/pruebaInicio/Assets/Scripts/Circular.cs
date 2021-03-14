@@ -11,10 +11,6 @@ public class Circular : MonoBehaviour
     public int numberOfObjects = 20;
     public float radius = 5f;
 
-    //Necesito las coordenadas del HOMBRO, CODO Y MUNYECA/MANO
-    //L --Longitud del brazo -- Suma de Vector3.mano, Vector3.codo y Vector3.Hombro
-    // centro del arco -- coordenada del hombro 
-
     //float coordenadaMano = Hombro(Transform.position);
     //float coordenadaHombro = Transform.position;
 

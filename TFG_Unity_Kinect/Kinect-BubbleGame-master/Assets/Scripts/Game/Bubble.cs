@@ -12,7 +12,7 @@ public class Bubble : MonoBehaviour
 
     private Vector3 mMovementDirection = Vector3.zero;
     private SpriteRenderer mSpriteRenderer = null;
-    private Coroutine mCurrentChanger = null;
+    //private Coroutine mCurrentChanger = null;
 
     public int explotedBubble; 
 
@@ -21,10 +21,10 @@ public class Bubble : MonoBehaviour
         mSpriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    private void Start()
-    {
-        mCurrentChanger = StartCoroutine(DirectionChanger());
-    }
+    //private void Start()
+    //{
+    //    mCurrentChanger = StartCoroutine(DirectionChanger());
+    //}
 
     private void OnBecameInvisible()
     {
@@ -46,7 +46,7 @@ public class Bubble : MonoBehaviour
        
         mSpriteRenderer.sprite = mPopSprite; //sprite es la animacion 
 
-        StopCoroutine(mCurrentChanger);
+        //StopCoroutine(mCurrentChanger);
         mMovementDirection = Vector3.zero;
 
         yield return new WaitForSeconds(0.5f);
@@ -54,7 +54,7 @@ public class Bubble : MonoBehaviour
         transform.position = mBubbleManager.GetPlanePosition();
 
         mSpriteRenderer.sprite = mBubbleSprite;
-        mCurrentChanger = StartCoroutine(DirectionChanger());
+        //mCurrentChanger = StartCoroutine(DirectionChanger());
     }
 
     private IEnumerator DirectionChanger()

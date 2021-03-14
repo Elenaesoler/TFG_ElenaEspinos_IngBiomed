@@ -14,7 +14,6 @@ public class Hand : MonoBehaviour
         mHandMesh.position = Vector3.Lerp(mHandMesh.position, transform.position, Time.deltaTime * 15.0f);
     }
 
-    
     //el metodo cambio1 sirve para finalizar un ejercicio, nivel o escena. 
     //al invocar el metodo cambio1, elegimos a que otra escena queremos ir
     public void Cambio1(string sceneName) //metodo de cambio de escena al acabar 

@@ -5,6 +5,8 @@ using UnityEngine;
 public class BubbleManager : MonoBehaviour
 {
     public GameObject mBubblePrefab;    //TIPO GAMEOBJECT 
+    //public GameObject botonJugar;
+    public static List<Vector3> listaPos = new List<Vector3>();
 
     private List<Bubble> mAllBubbles = new List<Bubble>();      //LISTA de burbujas 
     private Vector2 mBottomLeft = Vector2.zero;   //
@@ -31,6 +33,11 @@ public class BubbleManager : MonoBehaviour
         Gizmos.DrawSphere(Camera.main.ScreenToWorldPoint(new Vector3(Camera.main.pixelWidth, Camera.main.pixelHeight, Camera.main.farClipPlane)), 0.5f);
     }
 
+    public static void setListaPos(List<Vector3> lista)
+    {
+        listaPos = lista;
+    }
+
     public Vector3 GetPlanePosition()
     {
         float targetX = Random.Range(mBottomLeft.x, mTopRight.x);
@@ -38,13 +45,18 @@ public class BubbleManager : MonoBehaviour
 
         return new Vector3(targetX, targetY, 0);
     }
+    
+    //private IEnumerator crearPompas()
+    //{
+    //  while (gameObject = true)
+    //      crea la burbuja
+    //      Cuando haya creado las 5
+    //      gameObject = false
 
-    
-    
     private IEnumerator CreateBubbles()
     {
         Debug.Log("empieza creat bubble");
-        while (mAllBubbles.Count < 20)
+        while (mAllBubbles.Count < 7)
         {
             // Create and add
             GameObject newBubbleObject = Instantiate(mBubblePrefab, GetPlanePosition(), Quaternion.identity, transform);

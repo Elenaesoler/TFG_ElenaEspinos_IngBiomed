@@ -390,10 +390,17 @@ public class BodySourceView : MonoBehaviour
 
             listaParesV.Clear();
         }
-  
+
+        BubbleManager.setListaPos(posicionFinalObjeto);
         return posicionFinalObjeto;
     }
     #endregion
+
+    //public Vector3 GetPositionFroList(List<Vector3> lista)
+    //{
+    //    foreach (Vector3 pos in lista)
+    //        return new Vector3(pos.x, pos.y, 0);
+    //}
 
     #region metodo recursivo de calculo de posiciones finales de objeto
     public Vector3 calculoPosiciones(List<Vector3> listaParesVectores, Vector3 posicionLive, List<float> listaDistancia)
