@@ -392,6 +392,7 @@ public class BodySourceView : MonoBehaviour
         }
 
         BubbleManager.setListaPos(posicionFinalObjeto);
+        //probar que las bburbujas se crean aqui x ejemplo
         return posicionFinalObjeto;
     }
     #endregion

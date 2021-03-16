@@ -38,6 +38,7 @@ public class BubbleManager : MonoBehaviour
         listaPos = lista;
     }
 
+
     public Vector3 GetPlanePosition()
     {
         float targetX = Random.Range(mBottomLeft.x, mTopRight.x);
