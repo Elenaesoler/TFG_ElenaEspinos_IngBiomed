@@ -57,13 +57,13 @@ public class Bubble : MonoBehaviour
         //mCurrentChanger = StartCoroutine(DirectionChanger());
     }
 
-    private IEnumerator DirectionChanger()
-    {
-        while (gameObject.activeSelf)
-        {
-            mMovementDirection = new Vector2(Random.Range(-100, 100) * 0.01f, Random.Range(0, 100) * 0.01f);
+    //private IEnumerator DirectionChanger()
+    //{
+    //    while (gameObject.activeSelf)
+    //    {
+    //        mMovementDirection = new Vector2(Random.Range(-100, 100) * 0.01f, Random.Range(0, 100) * 0.01f);
 
-            yield return new WaitForSeconds(5.0f);
-        }
-    }
+    //        yield return new WaitForSeconds(5.0f);
+    //    }
+    //}
 }

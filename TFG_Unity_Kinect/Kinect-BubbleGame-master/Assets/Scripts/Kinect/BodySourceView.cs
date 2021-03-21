@@ -11,7 +11,9 @@ public class BodySourceView : MonoBehaviour
     public BodySourceManager mBodySourceManager;
     public GameObject mJointObject;
     private int numBodies = 0;
-
+    
+    //public GameObject mBubblePrefab;
+   
     private Dictionary<ulong, GameObject> mBodies = new Dictionary<ulong, GameObject>();
     private List<JointType> _joints = new List<JointType> 
     {
@@ -104,7 +106,7 @@ public class BodySourceView : MonoBehaviour
         {
             botonGrabar.SetActive(false);
             botonFin.SetActive(false);
-            botonJugar.SetActive(false);
+            //botonJugar.SetActive(false);
             Debug.Log("Dentro del boton Jugar");
             Dictionary<JointType, List<Vector3>> dict = ReadFile(); /* Se instancia desde unity */
             List<Vector3> CP = CalculoVectores(dict);
@@ -336,6 +338,8 @@ public class BodySourceView : MonoBehaviour
     }
     #endregion
 
+
+    private List<Bubble> mAllBubbles = new List<Bubble>();
     #region calculo de pares de vectores (dados joints y coordenadas en 5 instantes) 
     public List<Vector3> CalculoVectores(Dictionary<JointType, List<Vector3>> dict)
     {
@@ -392,16 +396,18 @@ public class BodySourceView : MonoBehaviour
         }
 
         BubbleManager.setListaPos(posicionFinalObjeto);
+       
         //probar que las bburbujas se crean aqui x ejemplo
+        //foreach(Vector3 posB in posicionFinalObjeto)
+        //{
+        //    GameObject newBubbleObject = Instantiate(mBubblePrefab, posB, Quaternion.identity);
+        //    Bubble newBubble = newBubbleObject.GetComponent<Bubble>();
+
+        //    mAllBubbles.Add(newBubble);
+        //}
         return posicionFinalObjeto;
     }
     #endregion
-
-    //public Vector3 GetPositionFroList(List<Vector3> lista)
-    //{
-    //    foreach (Vector3 pos in lista)
-    //        return new Vector3(pos.x, pos.y, 0);
-    //}
 
     #region metodo recursivo de calculo de posiciones finales de objeto
     public Vector3 calculoPosiciones(List<Vector3> listaParesVectores, Vector3 posicionLive, List<float> listaDistancia)

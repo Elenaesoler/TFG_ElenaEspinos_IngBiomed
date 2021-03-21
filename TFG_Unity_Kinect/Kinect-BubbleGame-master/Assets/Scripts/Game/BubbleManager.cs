@@ -5,7 +5,7 @@ using UnityEngine;
 public class BubbleManager : MonoBehaviour
 {
     public GameObject mBubblePrefab;    //TIPO GAMEOBJECT 
-    //public GameObject botonJugar;
+    public GameObject botonJugar;
     public static List<Vector3> listaPos = new List<Vector3>();
 
     private List<Bubble> mAllBubbles = new List<Bubble>();      //LISTA de burbujas 
@@ -20,11 +20,18 @@ public class BubbleManager : MonoBehaviour
         mTopRight = Camera.main.ScreenToWorldPoint(new Vector3(Camera.main.pixelWidth, Camera.main.pixelHeight / 2, Camera.main.farClipPlane));
     }
 
-    private void Start()
+    public void CallBackPlay()
     {
-        Debug.Log("Empieza start y el juego comienza a capturar coordenadas - Bubble manager");
-        StartCoroutine(CreateBubbles());
+        if (listaPos.Count != 0)
+            StartCoroutine(CreateBubbles(listaPos));
     }
+
+    //private void Start()
+    //{
+    //    Debug.Log("Empieza start y el juego comienza a capturar coordenadas - Bubble manager");
+    //    while(listaPos.Count>1)
+    //        CreateBubbles(listaPos);
+    //}
 
     private void OnDrawGizmos()
     {
@@ -36,8 +43,8 @@ public class BubbleManager : MonoBehaviour
     public static void setListaPos(List<Vector3> lista)
     {
         listaPos = lista;
+        
     }
-
 
     public Vector3 GetPlanePosition()
     {
@@ -46,7 +53,7 @@ public class BubbleManager : MonoBehaviour
 
         return new Vector3(targetX, targetY, 0);
     }
-    
+
     //private IEnumerator crearPompas()
     //{
     //  while (gameObject = true)
@@ -54,21 +61,37 @@ public class BubbleManager : MonoBehaviour
     //      Cuando haya creado las 5
     //      gameObject = false
 
-    private IEnumerator CreateBubbles()
+    public IEnumerator CreateBubbles(List<Vector3> lista)
     {
-        Debug.Log("empieza creat bubble");
-        while (mAllBubbles.Count < 7)
+        Debug.Log("dentro de createbubbles");
+        foreach(Vector3 pos in listaPos)
         {
-            // Create and add
-            GameObject newBubbleObject = Instantiate(mBubblePrefab, GetPlanePosition(), Quaternion.identity, transform);
+            float posX = pos.x;
+            float posY = pos.y;
+
+            Vector3 posBB = new Vector3(posX, posY, 0);
+            Debug.Log(posBB);
+            GameObject newBubbleObject = Instantiate(mBubblePrefab, posBB, Quaternion.identity, transform);
             Bubble newBubble = newBubbleObject.GetComponent<Bubble>();
 
-            // Setup bubble
             newBubble.mBubbleManager = this;
             mAllBubbles.Add(newBubble);
-
-            yield return new WaitForSeconds(0.5f);
         }
+        yield return new WaitForSeconds(0.2f);
+
+        //Debug.Log("empieza creat bubble");
+        //while (mAllBubbles.Count < 7)
+        //{
+        //    // Create and add
+        //    GameObject newBubbleObject = Instantiate(mBubblePrefab, GetPlanePosition(), Quaternion.identity, transform);
+        //    Bubble newBubble = newBubbleObject.GetComponent<Bubble>();
+
+        //    // Setup bubble
+        //    newBubble.mBubbleManager = this;
+        //    mAllBubbles.Add(newBubble);
+
+        //    yield return new WaitForSeconds(0.5f);
+        //}
     }
     
 }
