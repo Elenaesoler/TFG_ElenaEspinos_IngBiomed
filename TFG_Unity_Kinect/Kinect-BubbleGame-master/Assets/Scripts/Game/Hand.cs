@@ -12,18 +12,16 @@ public class Hand : MonoBehaviour
     private void Update()
     {
         mHandMesh.position = Vector3.Lerp(mHandMesh.position, transform.position, Time.deltaTime * 15.0f);
+
     }
 
-    //el metodo cambio1 sirve para finalizar un ejercicio, nivel o escena. 
-    //al invocar el metodo cambio1, elegimos a que otra escena queremos ir
-    public void Cambio1(string sceneName) //metodo de cambio de escena al acabar 
+     public void Cambio1(string sceneName) //metodo de cambio de escena al acabar 
     {
         SceneManager.LoadScene(sceneName);
     }
 
     //en este metodo, cuando hay colision, se incrementa la variable explotedBuble
     // al llegar al numero de pompas que se quiera, se invoca al metodo "cambio1"
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!collision.gameObject.CompareTag("Bubble"))
@@ -41,4 +39,28 @@ public class Hand : MonoBehaviour
             Cambio1("MenuScene");
 
     }
+
+    ///// <summary>
+    ///// Draws a hand symbol if the hand is tracked: red circle = closed, green circle = opened; blue circle = lasso
+    ///// </summary>
+    ///// <param name="handState">state of the hand</param>
+    ///// <param name="handPosition">position of the hand</param>
+    ///// <param name="drawingContext">drawing context to draw to</param>
+    //private void DrawHand(HandState handState, Point handPosition, DrawingContext drawingContext)
+    //{
+    //    switch (handState)
+    //    {
+    //        case HandState.Closed:
+    //            drawingContext.DrawEllipse(this.handClosedBrush, null, handPosition, HandSize, HandSize);
+    //            break;
+
+    //        case HandState.Open:
+    //            drawingContext.DrawEllipse(this.handOpenBrush, null, handPosition, HandSize, HandSize);
+    //            break;
+
+    //        case HandState.Lasso:
+    //            drawingContext.DrawEllipse(this.handLassoBrush, null, handPosition, HandSize, HandSize);
+    //            break;
+    //    }
+    //}
 }

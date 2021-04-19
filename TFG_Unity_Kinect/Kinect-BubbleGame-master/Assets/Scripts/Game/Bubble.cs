@@ -43,6 +43,14 @@ public class Bubble : MonoBehaviour
     public IEnumerator Pop()
     {
         explotedBubble = explotedBubble + 1;
+        mSpriteRenderer.sprite = mPopSprite; //sprite es la animacion 
+        yield return new WaitForSeconds(0.5f);
+        mSpriteRenderer.sprite = null;
+    }
+
+    /*public IEnumerator Pop()
+    {
+        explotedBubble = explotedBubble + 1;
        
         mSpriteRenderer.sprite = mPopSprite; //sprite es la animacion 
 
@@ -55,7 +63,7 @@ public class Bubble : MonoBehaviour
 
         mSpriteRenderer.sprite = mBubbleSprite;
         //mCurrentChanger = StartCoroutine(DirectionChanger());
-    }
+    }*/
 
     //private IEnumerator DirectionChanger()
     //{

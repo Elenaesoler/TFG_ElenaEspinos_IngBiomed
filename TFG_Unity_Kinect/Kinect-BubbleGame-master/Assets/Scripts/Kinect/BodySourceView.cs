@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -15,25 +16,32 @@ public class BodySourceView : MonoBehaviour
     //public GameObject mBubblePrefab;
    
     private Dictionary<ulong, GameObject> mBodies = new Dictionary<ulong, GameObject>();
-    private List<JointType> _joints = new List<JointType> 
+    private List<JointType> _joints = new List<JointType> //lista de joints que va a crear en la escena con el prefab hand
     {
         JointType.HandLeft,
         JointType.HandRight,         
-        JointType.ShoulderRight,  
-        JointType.ShoulderLeft,
+        //JointType.ShoulderRight,  
+        //JointType.ShoulderLeft,
     };
 
-    private List<JointType> jointsToSave = new List<JointType>  //lista variable de joints que queremos
-    {
-        JointType.HandRight,
-        JointType.ElbowRight,
-        JointType.ShoulderRight,
-    };
+    #region hand control
+    //Dictionary<JointType, Point> jointPoints = new Dictionary<JointType, Point>();
+    //private readonly Brush handClosedBrush = new SolidColorBrush(Color.FromArgb(128, 255, 0, 0));
+    //private readonly Brush handOpenBrush = new SolidColorBrush(Color.FromArgb(128, 0, 255, 0));
+    //// populate body colors, one for each BodyIndex
+    //private List<Pen> bodyColors;        
+    //this.bodyColors = new List<Pen>();
+    //this.bodyColors.Add(new Pen(Brushes.Green, 6));
+    //        //this.bodyColors.Add(new Pen(Brushes.Red, 6));            
+    //        //this.bodyColors.Add(new Pen(Brushes.Orange, 6));
+    //        //this.bodyColors.Add(new Pen(Brushes.Blue, 6));
+    //        //this.bodyColors.Add(new Pen(Brushes.Indigo, 6));
+    //        //this.bodyColors.Add(new Pen(Brushes.Violet, 6));
+    #endregion
 
+    private List<JointType> jointsToSave = new List<JointType>();  //lista variable de joints que queremos (Hasta ahora usamos hombro, codo y mano tanto izq como derecho)
     private Dictionary<JointType, Joint> currentJoint = new Dictionary<JointType, Joint>();
-
     private Dictionary<JointType, List<Vector3>> dictCoordenadas = new Dictionary<JointType, List<Vector3>>();
-
     //private static List<Vector3> coordenadaMano = new List<Vector3>();  //esta lista almacena las posiciones de la mano
     public Vector3 targetPosition;
     public Vector3 shoulderposition;
@@ -41,10 +49,18 @@ public class BodySourceView : MonoBehaviour
     public GameObject botonGrabar;
     public GameObject botonFin;
     public GameObject botonJugar;
-   // public List<Vector3> coordenadaResultMano = new List<Vector3>();
+    public GameObject toggles;
+    public Toggle toggleLeft;
+    public Toggle toggleRight;
+
+    public HandState LeftHandState;
+    public HandState RightHandState;
+
+    // public List<Vector3> coordenadaResultMano = new List<Vector3>();
 
     void Update()
     {
+       
         #region Get Kinect data
         Body[] data = mBodySourceManager.GetData();
         numBodies = 0;
@@ -60,6 +76,11 @@ public class BodySourceView : MonoBehaviour
 
             if (body.IsTracked)
                 trackedIds.Add(body.TrackingId);
+
+
+            LeftHandState = body.HandLeftState;
+            RightHandState = body.HandRightState;
+            //if (LeftHandState == HandState.Closed)
         }
         #endregion
 
@@ -109,8 +130,35 @@ public class BodySourceView : MonoBehaviour
             //botonJugar.SetActive(false);
             Debug.Log("Dentro del boton Jugar");
             Dictionary<JointType, List<Vector3>> dict = ReadFile(); /* Se instancia desde unity */
-            List<Vector3> CP = CalculoVectores(dict);
 
+            // Separación de las listas en izq y dcha. posteriormente lo unifica en una unica lista 
+            Dictionary<JointType, List<Vector3>> dictRight = new Dictionary<JointType, List<Vector3>>();
+            Dictionary<JointType, List<Vector3>> dictLeft = new Dictionary<JointType, List<Vector3>>();
+            foreach (KeyValuePair<JointType, List<Vector3>> coordenaLeida in dict)
+            {
+                if ((int)coordenaLeida.Key < 8)
+                {
+                    dictLeft.Add(coordenaLeida.Key, coordenaLeida.Value);
+                }
+                else
+                {
+                    dictRight.Add(coordenaLeida.Key, coordenaLeida.Value);
+                }
+            }
+
+            List<Vector3> CP_Left = CalculoVectores(dictRight);
+            List<Vector3> CP_Right = CalculoVectores(dictLeft);
+            List<Vector3> CP = new List<Vector3>();
+            foreach (Vector3 coord in CP_Left)
+            {
+                CP.Add(coord);
+            }
+            foreach (Vector3 coord in CP_Right)
+            {
+                CP.Add(coord);
+            }
+
+            BubbleManager.setListaPos(CP);
             //Setbubbles(CalculoVectores(ReadFile()));
         }
     }
@@ -121,7 +169,24 @@ public class BodySourceView : MonoBehaviour
         botonGrabar.SetActive(false);
         botonJugar.SetActive(false);
         botonFin.SetActive(true);
+
+        if (toggleRight.isOn)
+        {
+            jointsToSave.Add(JointType.HandRight);
+            jointsToSave.Add(JointType.ElbowRight);
+            jointsToSave.Add(JointType.ShoulderRight);
+        }
+
+        if (toggleLeft.isOn)
+        {
+            jointsToSave.Add(JointType.HandLeft);
+            jointsToSave.Add(JointType.ElbowLeft);
+            jointsToSave.Add(JointType.ShoulderLeft);
+        }
+
+        toggles.SetActive(false);
     }
+
     public void CallbackBotonFin()
     {
         grabar = false;
@@ -132,7 +197,11 @@ public class BodySourceView : MonoBehaviour
         }
         
         botonGrabar.SetActive(true);
-        botonJugar.SetActive(true);
+        botonFin.SetActive(false);
+        //botonJugar.SetActive(true);
+
+        jointsToSave.Clear();
+        toggles.SetActive(true);
     }
 
     private GameObject CreateBodyObject(ulong id)
@@ -142,15 +211,15 @@ public class BodySourceView : MonoBehaviour
         GameObject body = new GameObject("Body:" + id);
 
         // Create joints
-        //foreach (JointType joint in _joints)
-        //{
+        foreach (JointType joint in _joints)
+        {
             // Create Object
             GameObject newJoint = Instantiate(mJointObject);  //
-            newJoint.name = JointType.HandRight.ToString();  //donde pone JointType.HandRight antes habia variable joint del foreach
+            newJoint.name = joint.ToString();  //donde pone JointType.HandRight antes habia variable joint del foreach
 
             // Parent to body
             newJoint.transform.parent = body.transform;
-        //}
+        }
         return body;
     }
     
@@ -160,12 +229,12 @@ public class BodySourceView : MonoBehaviour
         foreach (JointType _joint in _joints) //por cada joint de la lista de articulaciones de arriba
         {
             // Get new target position of handRight
-            Joint sourceJoint = body.Joints[JointType.HandRight]; //_joint por JointType.HandRight
+            Joint sourceJoint = body.Joints[_joint]; //_joint por JointType.HandRight
             targetPosition = GetVector3FromJoint(sourceJoint);
             targetPosition.z = 0;  
 
             // Get joint, set new position
-            Transform jointObject = bodyObject.transform.Find(JointType.HandRight.ToString());
+            Transform jointObject = bodyObject.transform.Find(_joint.ToString());
             jointObject.position = targetPosition;
 
             //Get position of shoulderRight
@@ -267,7 +336,7 @@ public class BodySourceView : MonoBehaviour
         {
             output.WriteLine(((int) joint).ToString());
 
-            foreach (Vector3 argumento in listPromed) 
+            foreach (Vector3 argumento in listPromed)
             {
                 string margumento = argumento.x.ToString() + ";" + argumento.y.ToString() + ";" + argumento.z.ToString();
                 output.WriteLine(margumento);
@@ -343,68 +412,70 @@ public class BodySourceView : MonoBehaviour
     #region calculo de pares de vectores (dados joints y coordenadas en 5 instantes) 
     public List<Vector3> CalculoVectores(Dictionary<JointType, List<Vector3>> dict)
     {
-        //calculo de los vectores directores con la lectura del diccionario resultante de la lectura del archivo 
-
-        List<JointType> listNumJoints = new List<JointType>();
-
-        //Obtiene los keys(numero correspondiente de cada joint) para ordenarlo con 'bubble sort'
-        foreach (KeyValuePair<JointType, List<Vector3>> coordenaLeida in dict)
-        {
-            listNumJoints.Add(coordenaLeida.Key);
-        }
-        listNumJoints = bubbleSort(listNumJoints); //ORDENA LA LISTA POR JOINTS CRECIENTE
-
-        //Calculo de pares de vectores (Hombro-Codo, Codo-Mano)
-        Vector3[,] v = new Vector3[listNumJoints.Count -1 ,dict[listNumJoints[0]].Count];
-        for (int i = 0; i < listNumJoints.Count -1; i++)
-        {
-            for (int j = 0; j < dict[listNumJoints[i]].Count  ;j++)
-            {
-                v[i, j].x = dict[listNumJoints[i]][j].x - dict[listNumJoints[i + 1]][j].x;
-                v[i, j].y = dict[listNumJoints[i]][j].y - dict[listNumJoints[i + 1]][j].y;
-                v[i, j].z = dict[listNumJoints[i]][j].z - dict[listNumJoints[i + 1]][j].z;
-            }   
-        }
-        
-        List<Vector3> currentPosition = new List<Vector3>();
-        for(int i=0; i < listNumJoints.Count; i++)
-        {
-            currentPosition.Add(GetVector3FromJoint(currentJoint[listNumJoints[i]]));
-        }
-
-        //// calcular distancia entre joints 'en directo' (modulo de un vector)
-        List<float> listaDistancia = new List<float>();
-        for (int i = 0; i < currentPosition.Count - 1; i++)
-        {
-            float distancia = Vector3.Distance(currentPosition[i], currentPosition[i + 1]);
-            listaDistancia.Add(distancia);
-        }
-
-        List<Vector3> listaParesV = new List<Vector3>();
         List<Vector3> posicionFinalObjeto = new List<Vector3>();
 
-        for (int i = 0; i < v.GetLength(1) ; i++) //Acceso a cada columna de v[0,1]
+        if (dict.Count > 0)
         {
-            for (int j = 0; j < v.GetLength(0); j++)//Acceso a cada fila
+            //calculo de los vectores directores con la lectura del diccionario resultante de la lectura del archivo 
+
+            List<JointType> listNumJoints = new List<JointType>();
+
+            //Obtiene los keys(numero correspondiente de cada joint) para ordenarlo con 'bubble sort'
+            foreach (KeyValuePair<JointType, List<Vector3>> coordenaLeida in dict)
             {
-                listaParesV.Add(v[j, i]); //Anyado fila (j) y columna (i)
+                listNumJoints.Add(coordenaLeida.Key);
             }
-            Debug.Log("ListaParesVectores: " + listaParesV.Count + ", ListaDistancia: " + listaDistancia.Count);
-            posicionFinalObjeto.Add(calculoPosiciones(listaParesV, currentPosition[0], listaDistancia));
+            listNumJoints = bubbleSort(listNumJoints); //ORDENA LA LISTA POR JOINTS CRECIENTE
 
-            listaParesV.Clear();
+            //Calculo de pares de vectores (Mano-Codo, Codo-Hombro)
+            Vector3[,] v = new Vector3[listNumJoints.Count - 1, dict[listNumJoints[0]].Count];
+            for (int i = 0; i < listNumJoints.Count - 1; i++)
+            {
+                for (int j = 0; j < dict[listNumJoints[i]].Count; j++)
+                {
+                    v[i, j].x = dict[listNumJoints[i]][j].x - dict[listNumJoints[i + 1]][j].x;
+                    v[i, j].y = dict[listNumJoints[i]][j].y - dict[listNumJoints[i + 1]][j].y;
+                    v[i, j].z = dict[listNumJoints[i]][j].z - dict[listNumJoints[i + 1]][j].z;
+                }
+            }
+
+            List<Vector3> currentPosition = new List<Vector3>();
+            for (int i = 0; i < listNumJoints.Count; i++)
+            {
+                currentPosition.Add(GetVector3FromJoint(currentJoint[listNumJoints[i]]));
+            }
+
+            //// calcular distancia entre joints 'en directo' (modulo de un vector)
+            List<float> listaDistancia = new List<float>();
+            for (int i = 0; i < currentPosition.Count - 1; i++)
+            {
+                float distancia = Vector3.Distance(currentPosition[i], currentPosition[i + 1]);
+                listaDistancia.Add(distancia);
+            }
+
+            List<Vector3> listaParesV = new List<Vector3>();
+
+            for (int i = 0; i < v.GetLength(1); i++) //Acceso a cada columna de v[0,1]
+            {
+                for (int j = 0; j < v.GetLength(0); j++)//Acceso a cada fila
+                {
+                    listaParesV.Add(v[j, i]); //Anyado fila (j) y columna (i)
+                }
+                Debug.Log("ListaParesVectores: " + listaParesV.Count + ", ListaDistancia: " + listaDistancia.Count);
+                posicionFinalObjeto.Add(calculoPosiciones(listaParesV, currentPosition[0], listaDistancia));
+
+                listaParesV.Clear();
+            }
+
+            //probar que las bburbujas se crean aqui x ejemplo
+            //foreach(Vector3 posB in posicionFinalObjeto)
+            //{
+            //    GameObject newBubbleObject = Instantiate(mBubblePrefab, posB, Quaternion.identity);
+            //    Bubble newBubble = newBubbleObject.GetComponent<Bubble>();
+
+            //    mAllBubbles.Add(newBubble);
+            //}
         }
-
-        BubbleManager.setListaPos(posicionFinalObjeto);
-       
-        //probar que las bburbujas se crean aqui x ejemplo
-        //foreach(Vector3 posB in posicionFinalObjeto)
-        //{
-        //    GameObject newBubbleObject = Instantiate(mBubblePrefab, posB, Quaternion.identity);
-        //    Bubble newBubble = newBubbleObject.GetComponent<Bubble>();
-
-        //    mAllBubbles.Add(newBubble);
-        //}
         return posicionFinalObjeto;
     }
     #endregion

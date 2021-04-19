@@ -16,6 +16,9 @@ public class BubbleManager : MonoBehaviour
     {
         // Bounding values
         Debug.Log("Entro en awake - Bubble manager");
+
+        //botonJugar.SetActive(false);
+
         mBottomLeft = Camera.main.ScreenToWorldPoint(new Vector3(0, 0, Camera.main.farClipPlane));
         mTopRight = Camera.main.ScreenToWorldPoint(new Vector3(Camera.main.pixelWidth, Camera.main.pixelHeight / 2, Camera.main.farClipPlane));
     }
@@ -43,7 +46,6 @@ public class BubbleManager : MonoBehaviour
     public static void setListaPos(List<Vector3> lista)
     {
         listaPos = lista;
-        
     }
 
     public Vector3 GetPlanePosition()
@@ -63,7 +65,6 @@ public class BubbleManager : MonoBehaviour
 
     public IEnumerator CreateBubbles(List<Vector3> lista)
     {
-        Debug.Log("dentro de createbubbles");
         foreach(Vector3 pos in listaPos)
         {
             float posX = pos.x;
@@ -77,7 +78,7 @@ public class BubbleManager : MonoBehaviour
             newBubble.mBubbleManager = this;
             mAllBubbles.Add(newBubble);
         }
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.01f);
 
         //Debug.Log("empieza creat bubble");
         //while (mAllBubbles.Count < 7)
@@ -93,5 +94,22 @@ public class BubbleManager : MonoBehaviour
         //    yield return new WaitForSeconds(0.5f);
         //}
     }
-    
+
+    public void CreateBubblesBB(List<Vector3> lista)
+    {
+        foreach (Vector3 pos in listaPos)
+        {
+            float posX = pos.x;
+            float posY = pos.y;
+
+            Vector3 posBB = new Vector3(posX, posY, 0);
+            Debug.Log(posBB);
+            GameObject newBubbleObject = Instantiate(mBubblePrefab, posBB, Quaternion.identity, transform);
+            Bubble newBubble = newBubbleObject.GetComponent<Bubble>();
+
+            newBubble.mBubbleManager = this;
+            mAllBubbles.Add(newBubble);
+        }
+    }
+
 }
