@@ -94,22 +94,21 @@ public class BubbleManager : MonoBehaviour
         //    yield return new WaitForSeconds(0.5f);
         //}
     }
+    //public void CreateBubblesBB(List<Vector3> lista)
+    //{
+    //    foreach (Vector3 pos in listaPos)
+    //    {
+    //        float posX = pos.x;
+    //        float posY = pos.y;
 
-    public void CreateBubblesBB(List<Vector3> lista)
-    {
-        foreach (Vector3 pos in listaPos)
-        {
-            float posX = pos.x;
-            float posY = pos.y;
+    //        Vector3 posBB = new Vector3(posX, posY, 0);
+    //        Debug.Log(posBB);
+    //        GameObject newBubbleObject = Instantiate(mBubblePrefab, posBB, Quaternion.identity, transform);
+    //        Bubble newBubble = newBubbleObject.GetComponent<Bubble>();
 
-            Vector3 posBB = new Vector3(posX, posY, 0);
-            Debug.Log(posBB);
-            GameObject newBubbleObject = Instantiate(mBubblePrefab, posBB, Quaternion.identity, transform);
-            Bubble newBubble = newBubbleObject.GetComponent<Bubble>();
-
-            newBubble.mBubbleManager = this;
-            mAllBubbles.Add(newBubble);
-        }
-    }
+    //        newBubble.mBubbleManager = this;
+    //        mAllBubbles.Add(newBubble);
+    //    }
+    //}
 
 }

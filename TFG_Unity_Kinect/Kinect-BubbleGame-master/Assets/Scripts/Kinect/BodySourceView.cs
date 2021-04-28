@@ -53,8 +53,8 @@ public class BodySourceView : MonoBehaviour
     public Toggle toggleLeft;
     public Toggle toggleRight;
 
-    public HandState LeftHandState;
-    public HandState RightHandState;
+    private HandState LeftHandState = HandState.Open;
+    private HandState RightHandState = HandState.Open;
 
     // public List<Vector3> coordenadaResultMano = new List<Vector3>();
 
@@ -76,11 +76,8 @@ public class BodySourceView : MonoBehaviour
 
             if (body.IsTracked)
                 trackedIds.Add(body.TrackingId);
-
-
-            LeftHandState = body.HandLeftState;
-            RightHandState = body.HandRightState;
-            //if (LeftHandState == HandState.Closed)
+            //LeftHandState = body.HandLeftState;
+            //RightHandState = body.HandRightState;
         }
         #endregion
 
@@ -225,6 +222,26 @@ public class BodySourceView : MonoBehaviour
     
     private void UpdateBodyObject(Body body, GameObject bodyObject)
     {
+        
+        Hand[] listHand = bodyObject.GetComponentsInChildren<Hand>();
+        int leftHandId = 0, righHandId = 0;
+        for (int i = 0; i < listHand.Length; i++)
+        {
+            Debug.Log(listHand[i].ToString());
+            if (listHand[i].ToString().Equals("HandLeft (Hand)"))
+            {
+                leftHandId = i;
+                Debug.Log("EqualLeft");
+            }
+            else if (listHand[i].ToString().Equals("HandRight (Hand)"))
+            {
+                righHandId = i;
+                Debug.Log("EqualRight");
+            }
+        }
+        if (leftHandId == righHandId) Debug.Log("De locos");
+        //Debug.Log(listHand[0].ToString());
+
         // Update joints
         foreach (JointType _joint in _joints) //por cada joint de la lista de articulaciones de arriba
         {
@@ -237,17 +254,57 @@ public class BodySourceView : MonoBehaviour
             Transform jointObject = bodyObject.transform.Find(_joint.ToString());
             jointObject.position = targetPosition;
 
+            if (listHand.Length > 0)
+            {
+                if (_joint == JointType.HandLeft)
+                {
+                    listHand[leftHandId].updateState(body.HandLeftState);
+                }
+                else if (_joint == JointType.HandRight)
+                {
+                    listHand[righHandId].updateState(body.HandRightState);
+                }
+            }
+            
+            //Hand.changeSprite(LeftHandState);
+            //Hand.changeSprite(RightHandState);
+
             //Get position of shoulderRight
             //Joint jointShoulder = body.Joints[JointType.ShoulderRight];
             //shoulderposition = GetVector3FromJoint(jointShoulder);
             //shoulderposition.z = 0;
         }
 
+        LeftHandState = body.HandLeftState;
+        RightHandState = body.HandRightState;
+
         if (grabar == true)
         {
             GrabarEjercicio(body.Joints);
         }
     }
+
+    ///// Draws a hand symbol if the hand is tracked: red circle = closed, green circle = opened; blue circle = lasso
+    ///// <param name="handState">state of the hand</param>
+    ///// <param name="handPosition">position of the hand</param>
+    ///// <param name="drawingContext">drawing context to draw to</param>
+    //private void DrawHand(HandState handState, Point handPosition, DrawingContext drawingContext)
+    //{
+    //    switch (handState)
+    //    {
+    //        case HandState.Closed:
+    //            drawingContext.DrawEllipse(this.handClosedBrush, null, handPosition, HandSize, HandSize);
+    //            break;
+
+    //        case HandState.Open:
+    //            drawingContext.DrawEllipse(this.handOpenBrush, null, handPosition, HandSize, HandSize);
+    //            break;
+
+    //        case HandState.Lasso:
+    //            drawingContext.DrawEllipse(this.handLassoBrush, null, handPosition, HandSize, HandSize);
+    //            break;
+    //    }
+    //}
 
     public void GrabarEjercicio(Dictionary<JointType, Joint> dictJoints)
     {
@@ -479,6 +536,11 @@ public class BodySourceView : MonoBehaviour
         return posicionFinalObjeto;
     }
     #endregion
+
+    //metodo que envie el estado de las manos y cambie de tamaño o de color la mano en la clase Hand
+    //if (LeftHandState == HandState.Closed)
+
+
 
     #region metodo recursivo de calculo de posiciones finales de objeto
     public Vector3 calculoPosiciones(List<Vector3> listaParesVectores, Vector3 posicionLive, List<float> listaDistancia)
