@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using System.IO;
 using Windows.Kinect;
 using Joint = Windows.Kinect.Joint;
@@ -25,29 +26,69 @@ public class Hand : MonoBehaviour
     private void Update()
     {
         mHandMesh.position = Vector3.Lerp(mHandMesh.position, transform.position, Time.deltaTime * 15.0f);
+        //Debug.Log(mHandMesh.position);
     }
 
     //en este metodo, cuando hay colision, se incrementa la variable explotedBuble
     // al llegar al numero de pompas que se quiera, se invoca al metodo "cambio1"
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.gameObject.CompareTag("Bubble"))
-            //ESTO NO ES COLISION
-            return;
+        //Debug.Log("Collision2D " + collision.gameObject.tag);
+        if (collision.gameObject.CompareTag("Bubble"))
+        {
+            explotedBubble = explotedBubble + 1;   //la variable almacena las pompas que explotan
+            //Debug.Log("pop" + explotedBubble.ToString()); //imprime en consola el numero de colision MIRAR POR QUE SE DUPLICAN
+                                                          //ToString 
+            Bubble bubble = collision.gameObject.GetComponent<Bubble>();
+            StartCoroutine(bubble.Pop());
 
-        explotedBubble = explotedBubble + 1;   //la variable almacena las pompas que explotan
-        Debug.Log("pop" + explotedBubble.ToString()); //imprime en consola el numero de colision MIRAR POR QUE SE DUPLICAN
-                                                        //ToString 
-        Bubble bubble = collision.gameObject.GetComponent<Bubble>();
-        StartCoroutine(bubble.Pop());
-
-        //if(explotedBubble==10)   //cuando se exploten 10 (por ejemplo, se puede cambiar. CAMBIAR A VARIABLE DESDE UNITY) pompas acaba el juego. 
-        //    Cambio1("MenuScene");
+            //if(explotedBubble==10)   //cuando se exploten 10 (por ejemplo, se puede cambiar. CAMBIAR A VARIABLE DESDE UNITY) pompas acaba el juego. 
+            //    Cambio1("MenuScene");
+        }
+        else if(collision.gameObject.CompareTag("boton"))
+        {
+            Debug.Log("BOTON");
+            if (handState == HandState.Closed)
+            {
+                //collision.gameObject.GetComponent<>();
+                //GameObject boton = collision.gameObject.GetComponent<GameObject>();
+                collision.gameObject.GetComponent<Button>().onClick.Invoke();
+            }
+        }
+        else if (collision.gameObject.CompareTag("toggle"))
+        {
+            Debug.Log("TOGGLE");
+            if (handState == HandState.Closed)
+            {
+                if (collision.gameObject.GetComponent<Toggle>().isOn)
+                {
+                    collision.gameObject.GetComponent<Toggle>().isOn = false;
+                }
+                else
+                {
+                    collision.gameObject.GetComponent<Toggle>().isOn = true;
+                }
+            }
+        }
     }
 
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        //Debug.Log("Collision2D " + collision.gameObject.tag);
+        if (collision.gameObject.CompareTag("boton"))
+        {
+            Debug.Log("BOTON");
+            if (handState == HandState.Closed)
+            {
+                //collision.gameObject.GetComponent<>();
+                //GameObject boton = collision.gameObject.GetComponent<GameObject>();
+                collision.gameObject.GetComponent<Button>().onClick.Invoke();
+            }
+        }
+    }
     public void updateState(HandState state)
     {
-        Debug.Log("state update: " + state.ToString());
+        //Debug.Log("state update: " + state.ToString());
         if (handState != state)
         {
             handState = state;
@@ -62,19 +103,8 @@ public class Hand : MonoBehaviour
             }
         }
     }
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (handState == HandState.Closed) 
-        {
-            if (collision.gameObject.CompareTag("boton")) 
-            {
-                //collision.gameObject.GetComponent<>();
-                GameObject boton = collision.gameObject.GetComponent<GameObject>();
-                //Click();
-                
-            }
-        }
-    }
+
+
 
     ///// Draws a hand symbol if the hand is tracked: red circle = closed, green circle = opened; blue circle = lasso
     ///// <param name="handState">state of the hand</param>

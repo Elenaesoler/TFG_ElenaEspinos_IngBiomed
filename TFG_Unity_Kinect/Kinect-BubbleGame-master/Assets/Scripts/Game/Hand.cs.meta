@@ -1,10 +1,12 @@
 fileFormatVersion: 2
 guid: c0c50b56485b5834485bbac920bac237
-timeCreated: 1511371080
-licenseType: Pro
 MonoImporter:
+  externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - mHandMesh: {instanceID: 0}
+  - T_Hand: {fileID: 21300000, guid: 7fc10c59c4de6c64399df9414b735833, type: 3}
+  - T_Cursor: {fileID: 21300000, guid: 4cf7fd62360b10c4d9c72a61bec5e693, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

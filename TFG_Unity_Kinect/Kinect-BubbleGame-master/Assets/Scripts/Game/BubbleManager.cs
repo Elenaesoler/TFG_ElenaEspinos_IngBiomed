@@ -15,7 +15,7 @@ public class BubbleManager : MonoBehaviour
     private void Awake()
     {
         // Bounding values
-        Debug.Log("Entro en awake - Bubble manager");
+        //Debug.Log("Entro en awake - Bubble manager");
 
         //botonJugar.SetActive(false);
 
@@ -71,7 +71,7 @@ public class BubbleManager : MonoBehaviour
             float posY = pos.y;
 
             Vector3 posBB = new Vector3(posX, posY, 0);
-            Debug.Log(posBB);
+            //Debug.Log(posBB);
             GameObject newBubbleObject = Instantiate(mBubblePrefab, posBB, Quaternion.identity, transform);
             Bubble newBubble = newBubbleObject.GetComponent<Bubble>();
 

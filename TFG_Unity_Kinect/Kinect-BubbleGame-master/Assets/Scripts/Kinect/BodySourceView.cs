@@ -53,6 +53,9 @@ public class BodySourceView : MonoBehaviour
     public Toggle toggleLeft;
     public Toggle toggleRight;
 
+    public string SesionFileName = "Sesion";
+    private int numeroSesion = 1;
+
     private HandState LeftHandState = HandState.Open;
     private HandState RightHandState = HandState.Open;
 
@@ -125,7 +128,7 @@ public class BodySourceView : MonoBehaviour
             botonGrabar.SetActive(false);
             botonFin.SetActive(false);
             //botonJugar.SetActive(false);
-            Debug.Log("Dentro del boton Jugar");
+            //Debug.Log("Dentro del boton Jugar");
             Dictionary<JointType, List<Vector3>> dict = ReadFile(); /* Se instancia desde unity */
 
             // Separación de las listas en izq y dcha. posteriormente lo unifica en una unica lista 
@@ -161,38 +164,42 @@ public class BodySourceView : MonoBehaviour
     }
     public void CallbackBotonGrabar()
     {
-        grabar = true;
-        Debug.Log("Comienza a grabar el ejercicio y desaparece el boton'Grabar' ");
-        botonGrabar.SetActive(false);
-        botonJugar.SetActive(false);
-        botonFin.SetActive(true);
-
-        if (toggleRight.isOn)
+        if (true)
         {
-            jointsToSave.Add(JointType.HandRight);
-            jointsToSave.Add(JointType.ElbowRight);
-            jointsToSave.Add(JointType.ShoulderRight);
-        }
+            grabar = true;
+            // Debug.Log("Comienza a grabar el ejercicio y desaparece el boton'Grabar' ");
+            botonGrabar.SetActive(false);
+            botonJugar.SetActive(false);
+            botonFin.SetActive(true);
 
-        if (toggleLeft.isOn)
-        {
-            jointsToSave.Add(JointType.HandLeft);
-            jointsToSave.Add(JointType.ElbowLeft);
-            jointsToSave.Add(JointType.ShoulderLeft);
-        }
+            if (toggleRight.isOn)
+            {
+                jointsToSave.Add(JointType.HandRight);
+                jointsToSave.Add(JointType.ElbowRight);
+                jointsToSave.Add(JointType.ShoulderRight);
+            }
 
-        toggles.SetActive(false);
+            if (toggleLeft.isOn)
+            {
+                jointsToSave.Add(JointType.HandLeft);
+                jointsToSave.Add(JointType.ElbowLeft);
+                jointsToSave.Add(JointType.ShoulderLeft);
+            }
+
+            toggles.SetActive(false);
+        }
     }
 
     public void CallbackBotonFin()
     {
         grabar = false;
-        Debug.Log("Finaliza el ejercicio y desaparece el boton'Finalizar' ");
-        foreach (KeyValuePair<JointType, List<Vector3>> coordenadaGuardada in dictCoordenadas)
+        //Debug.Log("Finaliza el ejercicio y desaparece el boton'Finalizar' ");
+        /*foreach (KeyValuePair<JointType, List<Vector3>> coordenadaGuardada in dictCoordenadas)
         {
             promedCoordinates(coordenadaGuardada.Value, coordenadaGuardada.Key);
-        }
-        
+        }*/
+        promedCoordinates();
+
         botonGrabar.SetActive(true);
         botonFin.SetActive(false);
         //botonJugar.SetActive(true);
@@ -203,7 +210,7 @@ public class BodySourceView : MonoBehaviour
 
     private GameObject CreateBodyObject(ulong id)
     {
-        Debug.Log("Dentro de create body");
+        //Debug.Log("Dentro de create body");
         // Create body parent
         GameObject body = new GameObject("Body:" + id);
 
@@ -227,19 +234,18 @@ public class BodySourceView : MonoBehaviour
         int leftHandId = 0, righHandId = 0;
         for (int i = 0; i < listHand.Length; i++)
         {
-            Debug.Log(listHand[i].ToString());
+            //Debug.Log(listHand[i].ToString());
             if (listHand[i].ToString().Equals("HandLeft (Hand)"))
             {
                 leftHandId = i;
-                Debug.Log("EqualLeft");
+                //Debug.Log("EqualLeft");
             }
             else if (listHand[i].ToString().Equals("HandRight (Hand)"))
             {
                 righHandId = i;
-                Debug.Log("EqualRight");
+                //Debug.Log("EqualRight");
             }
         }
-        if (leftHandId == righHandId) Debug.Log("De locos");
         //Debug.Log(listHand[0].ToString());
 
         // Update joints
@@ -345,81 +351,117 @@ public class BodySourceView : MonoBehaviour
     }
 
     #region Dividir la lista coordenadasMano en partes y coger la media de cada parte
-    public void promedCoordinates(List<Vector3> listDict, JointType joint)
+    //public void promedCoordinates(List<Vector3> listDict, JointType joint)
+    public void promedCoordinates()
     {
-        if(listDict.Count != 0)
+        Dictionary<JointType, List<Vector3>> coordenadasPromed = new Dictionary<JointType, List<Vector3>>();
+        foreach (KeyValuePair<JointType, List<Vector3>> coordenadaGuardada in dictCoordenadas)
         {
-            #region CALCULO DEL PROMEDIO DE COORDENADAS DE LA MANO
-            
-            short numPartesM = 5;
-            int tamanyoParte = listDict.Count / numPartesM;
-
-            List<Vector3> coordenadaResultPromedM = new List<Vector3>();
-
-            for (int parte = 0; parte < numPartesM; parte++)
+            List<Vector3> listDict = coordenadaGuardada.Value;
+            JointType joint = coordenadaGuardada.Key;
+            if (listDict.Count != 0)
             {
-                float xParte = 0.0f, yParte = 0.0f, zParte = 0.0f;  //Agregue "f" al final para decirle al compilador que es un flotante
+                #region CALCULO DEL PROMEDIO DE COORDENADAS DE LA MANO
 
-                for (int i = 0; i < tamanyoParte; i++)
+                short numPartesM = 5;
+                int tamanyoParte = listDict.Count / numPartesM;
+
+                List<Vector3> coordenadaResultPromedM = new List<Vector3>();
+
+                for (int parte = 0; parte < numPartesM; parte++)
                 {
-                    xParte += listDict[i + parte * tamanyoParte].x;
-                    yParte += listDict[i + parte * tamanyoParte].y;
-                    zParte += listDict[i + parte * tamanyoParte].z;
-                }
-                          
-                float xPartVector = xParte / tamanyoParte;
-                float yPartVector = yParte / tamanyoParte;
-                float zPartVector = zParte / tamanyoParte;
-                
-                Debug.Log("Parte" + parte + "coordenada X" + xPartVector);
-                Debug.Log("Parte" + parte + "coordenada Y" + yPartVector);
-                Debug.Log("Parte" + parte + "coordenada Z" + zPartVector);
+                    float xParte = 0.0f, yParte = 0.0f, zParte = 0.0f;  //Agregue "f" al final para decirle al compilador que es un flotante
 
-                Vector3 coordXYZ = new Vector3(xPartVector, yPartVector, zPartVector);
-                coordenadaResultPromedM.Add(coordXYZ);
-                             
+                    for (int i = 0; i < tamanyoParte; i++)
+                    {
+                        xParte += listDict[i + parte * tamanyoParte].x;
+                        yParte += listDict[i + parte * tamanyoParte].y;
+                        zParte += listDict[i + parte * tamanyoParte].z;
+                    }
+
+                    float xPartVector = xParte / tamanyoParte;
+                    float yPartVector = yParte / tamanyoParte;
+                    float zPartVector = zParte / tamanyoParte;
+
+                    //Debug.Log("Parte" + parte + "coordenada X" + xPartVector);
+                    //Debug.Log("Parte" + parte + "coordenada Y" + yPartVector);
+                    //Debug.Log("Parte" + parte + "coordenada Z" + zPartVector);
+
+                    Vector3 coordXYZ = new Vector3(xPartVector, yPartVector, zPartVector);
+                    coordenadaResultPromedM.Add(coordXYZ);
+
+                }
+                //Debug.Log(coordenadaResultPromedM);
+                coordenadasPromed.Add(joint, coordenadaResultPromedM);
+                
+                #endregion
             }
-            Debug.Log(coordenadaResultPromedM);
-            FileGrabacion(coordenadaResultPromedM, joint);
-            #endregion
         }
+        FileGrabacion(coordenadasPromed);
     }
     #endregion
 
     #region crear txt con las coordenadas
-    public void FileGrabacion(List<Vector3> listPromed, JointType joint)
+    public void FileGrabacion(Dictionary<JointType, List<Vector3>> coordenadasPromed)
     {
-        using (StreamWriter output = new StreamWriter("Archivo.txt", true))
+        bool fileCreated = false;
+        do
         {
-            output.WriteLine(((int) joint).ToString());
-
-            foreach (Vector3 argumento in listPromed)
+            string FileName = SesionFileName + "_" + numeroSesion + ".txt";
+            if (!File.Exists(FileName))
             {
-                string margumento = argumento.x.ToString() + ";" + argumento.y.ToString() + ";" + argumento.z.ToString();
-                output.WriteLine(margumento);
-            }           
+                using (StreamWriter output = new StreamWriter(FileName, true))
+                {
+                    fileCreated = true;
+
+                    foreach (KeyValuePair<JointType, List<Vector3>> artCoord in coordenadasPromed)
+                    {
+                        output.WriteLine(((int)artCoord.Key).ToString());
+
+                        foreach (Vector3 argumento in artCoord.Value)
+                        {
+                            string margumento = argumento.x.ToString() + ";" + argumento.y.ToString() + ";" + argumento.z.ToString();
+                            output.WriteLine(margumento);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                numeroSesion++;
+            }
         }
+        while (!fileCreated);
     }
     #endregion
 
     #region Leer archivo txt y añade el contenido a un dicccionario
     public Dictionary<JointType, List<Vector3>> ReadFile()
     {
+        Debug.Log("Dentro de la vaina");
         Dictionary<JointType, List<Vector3>> dict = new Dictionary<JointType, List<Vector3>>();
         StreamReader sr;
         string line;
 
-        if(File.Exists("Archivo.txt"))
+        string lastFilename = "";
+        string FileName = SesionFileName + "_" + numeroSesion + ".txt";
+        while (File.Exists(FileName))
         {
-            JointType joint = (JointType) 0;
-            
-            sr = new StreamReader("Archivo.txt");
+            lastFilename = FileName;
+            numeroSesion++;
+            FileName = SesionFileName + "_" + numeroSesion + ".txt";
+        }
+
+        if (lastFilename.Length > 0)
+        {
+            numeroSesion--;
+            JointType joint = (JointType)0;
+
+            sr = new StreamReader(lastFilename);
             line = sr.ReadLine();
 
             while (line != null)
             {
-                //Debug.Log(line);
-
                 if (line.Length <= 2)
                 {
                     joint = (JointType)int.Parse(line);
@@ -457,7 +499,7 @@ public class BodySourceView : MonoBehaviour
         }
         foreach(JointType p  in numjoint)
         {
-            Debug.Log(p + " ");
+            //Debug.Log(p + " ");
         }
         
         return numjoint;
@@ -518,7 +560,7 @@ public class BodySourceView : MonoBehaviour
                 {
                     listaParesV.Add(v[j, i]); //Anyado fila (j) y columna (i)
                 }
-                Debug.Log("ListaParesVectores: " + listaParesV.Count + ", ListaDistancia: " + listaDistancia.Count);
+               // Debug.Log("ListaParesVectores: " + listaParesV.Count + ", ListaDistancia: " + listaDistancia.Count);
                 posicionFinalObjeto.Add(calculoPosiciones(listaParesV, currentPosition[0], listaDistancia));
 
                 listaParesV.Clear();
