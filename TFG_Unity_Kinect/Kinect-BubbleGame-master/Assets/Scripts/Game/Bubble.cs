@@ -14,7 +14,8 @@ public class Bubble : MonoBehaviour
     private SpriteRenderer mSpriteRenderer = null;
     //private Coroutine mCurrentChanger = null;
 
-    public int explotedBubble; 
+    public int explotedBubble;
+    private float timeLeft = 10.0f;
 
     private void Awake()
     {
@@ -38,11 +39,18 @@ public class Bubble : MonoBehaviour
 
         // Rotation
         transform.Rotate(Vector3.forward * Time.deltaTime * mMovementDirection.x * 20, Space.Self);
+
+        timeLeft -= Time.deltaTime;
+        if(timeLeft <= 0)
+        {
+            Pop();
+            explotedBubble--;
+        }
     }
 
     public IEnumerator Pop()
     {
-        explotedBubble = explotedBubble + 1;
+        explotedBubble++;
         mSpriteRenderer.sprite = mPopSprite; //sprite es la animacion 
         yield return new WaitForSeconds(0.5f);
         mSpriteRenderer.sprite = null;

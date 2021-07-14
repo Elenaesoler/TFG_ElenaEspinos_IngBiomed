@@ -45,10 +45,15 @@ public class BodySourceView : MonoBehaviour
     //private static List<Vector3> coordenadaMano = new List<Vector3>();  //esta lista almacena las posiciones de la mano
     public Vector3 targetPosition;
     public Vector3 shoulderposition;
-    private static bool grabar = false;
+    
     public GameObject botonGrabar;
     public GameObject botonFin;
     public GameObject botonJugar;
+    public GameObject Countdown;
+
+    private static bool grabar = false;
+    private bool startCountdown = false;
+    private float grabarCountdown = 4.0f;
     public GameObject toggles;
     public Toggle toggleLeft;
     public Toggle toggleRight;
@@ -120,6 +125,28 @@ public class BodySourceView : MonoBehaviour
         }
         #endregion
 
+        #region Countdown
+        //Debug.Log(Countdown);
+        if (startCountdown && Countdown)
+        {
+            grabarCountdown -= Time.deltaTime;
+            //Debug.Log(Countdown);
+
+            if (grabarCountdown <= 0)
+            {
+                grabar = true;
+                startCountdown = false;
+                Countdown.SetActive(false);
+                botonFin.SetActive(true);
+            }
+            else if (grabarCountdown < 0.5) Countdown.GetComponent<Text>().text = "Grabando";
+            else if (grabarCountdown < 2) Countdown.GetComponent<Text>().text = "1";
+            else if (grabarCountdown < 3) Countdown.GetComponent<Text>().text = "2";
+            else if (grabarCountdown < 4) Countdown.GetComponent<Text>().text = "3";
+            else Countdown.GetComponent<Text>().text = "";
+        }
+        #endregion
+
     }
     public void CallbackBotonJugar()
     {
@@ -127,7 +154,7 @@ public class BodySourceView : MonoBehaviour
         {
             botonGrabar.SetActive(false);
             botonFin.SetActive(false);
-            //botonJugar.SetActive(false);
+            botonJugar.SetActive(false);
             //Debug.Log("Dentro del boton Jugar");
             Dictionary<JointType, List<Vector3>> dict = ReadFile(); /* Se instancia desde unity */
 
@@ -162,16 +189,48 @@ public class BodySourceView : MonoBehaviour
             //Setbubbles(CalculoVectores(ReadFile()));
         }
     }
+
+    public void CallbackBotonGrabarLeft()
+    {
+        jointsToSave.Add(JointType.HandLeft);
+        jointsToSave.Add(JointType.ElbowLeft);
+        jointsToSave.Add(JointType.ShoulderLeft);
+        CallbackBotonGrabar();
+    }
+
+    public void CallbackBotonGrabarRight()
+    {
+        jointsToSave.Add(JointType.HandRight);
+        jointsToSave.Add(JointType.ElbowRight);
+        jointsToSave.Add(JointType.ShoulderRight);
+        CallbackBotonGrabar();
+    }
+
+    public void CallbackBotonGrabarBoth()
+    {
+        jointsToSave.Add(JointType.HandRight);
+        jointsToSave.Add(JointType.ElbowRight);
+        jointsToSave.Add(JointType.ShoulderRight);
+        jointsToSave.Add(JointType.HandLeft);
+        jointsToSave.Add(JointType.ElbowLeft);
+        jointsToSave.Add(JointType.ShoulderLeft);
+        CallbackBotonGrabar();
+    }
+
     public void CallbackBotonGrabar()
     {
         if (true)
         {
-            grabar = true;
+            //grabar = true;
+            startCountdown = true;
+            grabarCountdown = 4.0f;
             // Debug.Log("Comienza a grabar el ejercicio y desaparece el boton'Grabar' ");
+            Countdown.SetActive(true);
             botonGrabar.SetActive(false);
-            botonJugar.SetActive(false);
-            botonFin.SetActive(true);
+            //botonJugar.SetActive(false);
 
+            dictCoordenadas.Clear();
+            jointsToSave.Clear();
             if (toggleRight.isOn)
             {
                 jointsToSave.Add(JointType.HandRight);
@@ -189,6 +248,19 @@ public class BodySourceView : MonoBehaviour
             toggles.SetActive(false);
         }
     }
+    /*public void CallbackBotonGrabar()
+    {
+        if (true)
+        {
+            //grabar = true;
+            startCountdown = true;
+            grabarCountdown = 4.0f;
+            // Debug.Log("Comienza a grabar el ejercicio y desaparece el boton'Grabar' ");
+            Countdown.SetActive(true);
+            botonGrabar.SetActive(false);
+            botonJugar.SetActive(false);
+        }
+    }*/
 
     public void CallbackBotonFin()
     {
@@ -201,11 +273,11 @@ public class BodySourceView : MonoBehaviour
         promedCoordinates();
 
         botonGrabar.SetActive(true);
-        botonFin.SetActive(false);
-        //botonJugar.SetActive(true);
-
-        jointsToSave.Clear();
         toggles.SetActive(true);
+        botonFin.SetActive(false);
+
+        dictCoordenadas.Clear();
+        jointsToSave.Clear();        
     }
 
     private GameObject CreateBodyObject(ulong id)
@@ -287,6 +359,11 @@ public class BodySourceView : MonoBehaviour
         if (grabar == true)
         {
             GrabarEjercicio(body.Joints);
+
+            if(body.HandLeftState == HandState.Closed || body.HandRightState == HandState.Closed)
+            {
+                CallbackBotonFin();
+            }
         }
     }
 
@@ -315,7 +392,7 @@ public class BodySourceView : MonoBehaviour
     public void GrabarEjercicio(Dictionary<JointType, Joint> dictJoints)
     {
         #region Calculo de la distancia entre coordenada actual y coordenada anterior
-        
+
         // if (dictCoordenadas.Count == 0)
         //{
         foreach (JointType articulacion in jointsToSave)
@@ -438,7 +515,7 @@ public class BodySourceView : MonoBehaviour
     #region Leer archivo txt y añade el contenido a un dicccionario
     public Dictionary<JointType, List<Vector3>> ReadFile()
     {
-        Debug.Log("Dentro de la vaina");
+        //Debug.Log("Dentro de la vaina");
         Dictionary<JointType, List<Vector3>> dict = new Dictionary<JointType, List<Vector3>>();
         StreamReader sr;
         string line;

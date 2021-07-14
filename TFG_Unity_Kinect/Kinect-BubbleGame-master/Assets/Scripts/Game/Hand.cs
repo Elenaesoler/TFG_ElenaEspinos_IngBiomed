@@ -16,7 +16,10 @@ public class Hand : MonoBehaviour
     public Sprite T_Hand;
     public Sprite T_Cursor;
 
-
+    private Button buttonCollision = null;
+    private Toggle toggleCollision = null;
+    private bool toggleValue = false;
+    private float toggleCooldown = 0.0f;
     private void Awake()
     {
         mSpriteRenderer = GetComponentInChildren<SpriteRenderer>();
@@ -27,13 +30,18 @@ public class Hand : MonoBehaviour
     {
         mHandMesh.position = Vector3.Lerp(mHandMesh.position, transform.position, Time.deltaTime * 15.0f);
         //Debug.Log(mHandMesh.position);
+
+        /*if(toggleCooldown > 0 && toggleCooldown < Time.deltaTime)
+        {
+            Debug.Log("Se acabó el cooldown");
+        }*/
+        toggleCooldown -= Time.deltaTime;
     }
 
     //en este metodo, cuando hay colision, se incrementa la variable explotedBuble
     // al llegar al numero de pompas que se quiera, se invoca al metodo "cambio1"
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        //Debug.Log("Collision2D " + collision.gameObject.tag);
         if (collision.gameObject.CompareTag("Bubble"))
         {
             explotedBubble = explotedBubble + 1;   //la variable almacena las pompas que explotan
@@ -47,44 +55,20 @@ public class Hand : MonoBehaviour
         }
         else if(collision.gameObject.CompareTag("boton"))
         {
-            Debug.Log("BOTON");
-            if (handState == HandState.Closed)
-            {
-                //collision.gameObject.GetComponent<>();
-                //GameObject boton = collision.gameObject.GetComponent<GameObject>();
-                collision.gameObject.GetComponent<Button>().onClick.Invoke();
-            }
+            buttonCollision = collision.gameObject.GetComponent<Button>();
         }
         else if (collision.gameObject.CompareTag("toggle"))
         {
-            Debug.Log("TOGGLE");
-            if (handState == HandState.Closed)
-            {
-                if (collision.gameObject.GetComponent<Toggle>().isOn)
-                {
-                    collision.gameObject.GetComponent<Toggle>().isOn = false;
-                }
-                else
-                {
-                    collision.gameObject.GetComponent<Toggle>().isOn = true;
-                }
-            }
+            toggleCollision = collision.gameObject.GetComponent<Toggle>();
+            toggleValue = toggleCollision.isOn;
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerExit2D(Collider2D collision)
     {
-        //Debug.Log("Collision2D " + collision.gameObject.tag);
-        if (collision.gameObject.CompareTag("boton"))
-        {
-            Debug.Log("BOTON");
-            if (handState == HandState.Closed)
-            {
-                //collision.gameObject.GetComponent<>();
-                //GameObject boton = collision.gameObject.GetComponent<GameObject>();
-                collision.gameObject.GetComponent<Button>().onClick.Invoke();
-            }
-        }
+        //Debug.Log("EXIT");
+        toggleCollision = null;
+        buttonCollision = null;
     }
     public void updateState(HandState state)
     {
@@ -100,6 +84,18 @@ public class Hand : MonoBehaviour
             else// if (handState == HandState.Open)
             {
                 mSpriteRenderer.sprite = T_Hand;
+            }
+        }
+        if (state == HandState.Closed)
+        {
+            if (buttonCollision)
+            {
+                buttonCollision.onClick.Invoke();
+            }
+            if (toggleCollision && toggleCooldown <= 0)
+            {
+                toggleCooldown = 1.0f;
+                toggleCollision.isOn = !toggleValue;
             }
         }
     }
