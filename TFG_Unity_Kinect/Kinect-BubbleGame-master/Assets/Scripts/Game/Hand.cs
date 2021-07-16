@@ -48,7 +48,7 @@ public class Hand : MonoBehaviour
             //Debug.Log("pop" + explotedBubble.ToString()); //imprime en consola el numero de colision MIRAR POR QUE SE DUPLICAN
                                                           //ToString 
             Bubble bubble = collision.gameObject.GetComponent<Bubble>();
-            StartCoroutine(bubble.Pop());
+            bubble.Pop();
 
             //if(explotedBubble==10)   //cuando se exploten 10 (por ejemplo, se puede cambiar. CAMBIAR A VARIABLE DESDE UNITY) pompas acaba el juego. 
             //    Cambio1("MenuScene");

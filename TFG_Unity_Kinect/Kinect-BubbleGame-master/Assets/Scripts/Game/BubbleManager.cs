@@ -5,10 +5,13 @@ using UnityEngine;
 public class BubbleManager : MonoBehaviour
 {
     public GameObject mBubblePrefab;    //TIPO GAMEOBJECT 
-    public GameObject botonJugar;
+    public static float mMaxTimeBubble = 10.0f;
     public static List<Vector3> listaPos = new List<Vector3>();
 
-    private List<Bubble> mAllBubbles = new List<Bubble>();      //LISTA de burbujas 
+    private List<GameObject> mAllBubbleObjects = new List<GameObject>(); //LISTA de GameObject de burbujas
+    private List<Bubble> mAllBubbles = new List<Bubble>();      //LISTA de burbujas
+    private List<float> mBubblesScore = new List<float>();      //LISTA de tiempos en los que las burbujas explotaron
+    private int mPoppedBubbles = 0;
     private Vector2 mBottomLeft = Vector2.zero;   //
     private Vector2 mTopRight = Vector2.zero;   // 
     
@@ -16,8 +19,6 @@ public class BubbleManager : MonoBehaviour
     {
         // Bounding values
         //Debug.Log("Entro en awake - Bubble manager");
-
-        //botonJugar.SetActive(false);
 
         mBottomLeft = Camera.main.ScreenToWorldPoint(new Vector3(0, 0, Camera.main.farClipPlane));
         mTopRight = Camera.main.ScreenToWorldPoint(new Vector3(Camera.main.pixelWidth, Camera.main.pixelHeight / 2, Camera.main.farClipPlane));
@@ -65,20 +66,25 @@ public class BubbleManager : MonoBehaviour
 
     public IEnumerator CreateBubbles(List<Vector3> lista)
     {
+        int bubbleId = 0;
         foreach(Vector3 pos in listaPos)
         {
             float posX = pos.x;
             float posY = pos.y;
-
             Vector3 posBB = new Vector3(posX, posY, 0);
             //Debug.Log(posBB);
+
             GameObject newBubbleObject = Instantiate(mBubblePrefab, posBB, Quaternion.identity, transform);
             Bubble newBubble = newBubbleObject.GetComponent<Bubble>();
 
             newBubble.mBubbleManager = this;
+            newBubble.mBubbleId = bubbleId;
+            bubbleId++;
             mAllBubbles.Add(newBubble);
+            mAllBubbleObjects.Add(newBubbleObject);
+            mBubblesScore.Add(mMaxTimeBubble);
         }
-        yield return new WaitForSeconds(0.01f);
+        yield return new WaitForSeconds(0.1f);
 
         //Debug.Log("empieza creat bubble");
         //while (mAllBubbles.Count < 7)
@@ -94,6 +100,23 @@ public class BubbleManager : MonoBehaviour
         //    yield return new WaitForSeconds(0.5f);
         //}
     }
+
+    public void PopBubble(int bubbleId, float score)
+    {
+        mBubblesScore[bubbleId] = score;
+        //mAllBubbleObjects[bubbleId].SetActive(false);;
+    }
+
+    public void IncreasePoppedBubbles()
+    {
+        mPoppedBubbles++;
+    }
+
+    public static float getMaxTimeBubble()
+    {
+        return mMaxTimeBubble;
+    }
+
     //public void CreateBubblesBB(List<Vector3> lista)
     //{
     //    foreach (Vector3 pos in listaPos)

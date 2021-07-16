@@ -10,6 +10,7 @@ using Joint = Windows.Kinect.Joint;
 public class BodySourceView : MonoBehaviour
 {
     public BodySourceManager mBodySourceManager;
+    public BubbleManager mBubbleManager;
     public GameObject mJointObject;
     private int numBodies = 0;
     
@@ -186,6 +187,7 @@ public class BodySourceView : MonoBehaviour
             }
 
             BubbleManager.setListaPos(CP);
+            mBubbleManager.CallBackPlay();
             //Setbubbles(CalculoVectores(ReadFile()));
         }
     }

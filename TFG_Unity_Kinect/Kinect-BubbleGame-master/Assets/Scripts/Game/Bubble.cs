@@ -8,18 +8,21 @@ public class Bubble : MonoBehaviour
     public Sprite mPopSprite;
 
     [HideInInspector]
+    public int mBubbleId = 0;
+    [HideInInspector]
     public BubbleManager mBubbleManager = null;
 
+    private bool popped = false;
     private Vector3 mMovementDirection = Vector3.zero;
     private SpriteRenderer mSpriteRenderer = null;
     //private Coroutine mCurrentChanger = null;
 
-    public int explotedBubble;
-    private float timeLeft = 10.0f;
+    private float timeLeft;
 
     private void Awake()
     {
         mSpriteRenderer = GetComponent<SpriteRenderer>();
+        timeLeft = BubbleManager.getMaxTimeBubble();
     }
 
     //private void Start()
@@ -43,17 +46,27 @@ public class Bubble : MonoBehaviour
         timeLeft -= Time.deltaTime;
         if(timeLeft <= 0)
         {
-            Pop();
-            explotedBubble--;
+            mBubbleManager.PopBubble(mBubbleId, 0.0f);
+            StartCoroutine(PopAnimation());
         }
     }
 
-    public IEnumerator Pop()
+    public IEnumerator PopAnimation()
     {
-        explotedBubble++;
-        mSpriteRenderer.sprite = mPopSprite; //sprite es la animacion 
-        yield return new WaitForSeconds(0.5f);
-        mSpriteRenderer.sprite = null;
+        if (!popped)
+        {
+            mSpriteRenderer.sprite = mPopSprite; //sprite es la animacion 
+            yield return new WaitForSeconds(0.5f);
+            mSpriteRenderer.sprite = null;
+            popped = true;
+        }
+    }
+
+    public void Pop()
+    {
+        mBubbleManager.IncreasePoppedBubbles();
+        mBubbleManager.PopBubble(mBubbleId, timeLeft);
+        StartCoroutine(PopAnimation());
     }
 
     /*public IEnumerator Pop()
