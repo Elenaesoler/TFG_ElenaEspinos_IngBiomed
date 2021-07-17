@@ -17,7 +17,7 @@ public class Bubble : MonoBehaviour
     private SpriteRenderer mSpriteRenderer = null;
     //private Coroutine mCurrentChanger = null;
 
-    private float timeLeft;
+    private float timeLeft = BubbleManager.getMaxTimeBubble();
 
     private void Awake()
     {
@@ -46,27 +46,30 @@ public class Bubble : MonoBehaviour
         timeLeft -= Time.deltaTime;
         if(timeLeft <= 0)
         {
-            mBubbleManager.PopBubble(mBubbleId, 0.0f);
-            StartCoroutine(PopAnimation());
+            Pop(true);
         }
     }
 
     public IEnumerator PopAnimation()
     {
+        mSpriteRenderer.sprite = mPopSprite; //sprite es la animacion 
+        yield return new WaitForSeconds(0.5f);
+        mSpriteRenderer.sprite = null;
+    }
+
+    public void Pop(bool timeExcedeed)
+    {
         if (!popped)
         {
-            mSpriteRenderer.sprite = mPopSprite; //sprite es la animacion 
-            yield return new WaitForSeconds(0.5f);
-            mSpriteRenderer.sprite = null;
             popped = true;
+            mBubbleManager.PopBubble(mBubbleId, timeLeft, timeExcedeed);
+            StartCoroutine(PopAnimation());
         }
     }
 
-    public void Pop()
+    public bool isPopped()
     {
-        mBubbleManager.IncreasePoppedBubbles();
-        mBubbleManager.PopBubble(mBubbleId, timeLeft);
-        StartCoroutine(PopAnimation());
+        return popped;
     }
 
     /*public IEnumerator Pop()

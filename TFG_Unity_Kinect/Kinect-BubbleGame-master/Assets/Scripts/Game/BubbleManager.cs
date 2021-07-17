@@ -6,12 +6,16 @@ public class BubbleManager : MonoBehaviour
 {
     public GameObject mBubblePrefab;    //TIPO GAMEOBJECT 
     public static float mMaxTimeBubble = 10.0f;
+    public float mExerciseTime = 0.0f;
     public static List<Vector3> listaPos = new List<Vector3>();
 
     private List<GameObject> mAllBubbleObjects = new List<GameObject>(); //LISTA de GameObject de burbujas
     private List<Bubble> mAllBubbles = new List<Bubble>();      //LISTA de burbujas
-    private List<float> mBubblesScore = new List<float>();      //LISTA de tiempos en los que las burbujas explotaron
+    private List<float> mBubblesPopTime = new List<float>();      //LISTA de tiempos en los que las burbujas explotaron
     private int mPoppedBubbles = 0;
+    private int mRemainingBubbles = 100;
+    private int mTotalBubbles = 0;
+
     private Vector2 mBottomLeft = Vector2.zero;   //
     private Vector2 mTopRight = Vector2.zero;   // 
     
@@ -82,8 +86,12 @@ public class BubbleManager : MonoBehaviour
             bubbleId++;
             mAllBubbles.Add(newBubble);
             mAllBubbleObjects.Add(newBubbleObject);
-            mBubblesScore.Add(mMaxTimeBubble);
+            mBubblesPopTime.Add(mMaxTimeBubble);
         }
+        mRemainingBubbles = bubbleId;
+        mTotalBubbles = bubbleId;
+        mExerciseTime = 0.0f;
+        //Debug.Log(mTotalBubbles);
         yield return new WaitForSeconds(0.1f);
 
         //Debug.Log("empieza creat bubble");
@@ -101,10 +109,39 @@ public class BubbleManager : MonoBehaviour
         //}
     }
 
-    public void PopBubble(int bubbleId, float score)
+    public void PopBubble(int bubbleId, float popTime, bool timeExceeded)
     {
-        mBubblesScore[bubbleId] = score;
-        //mAllBubbleObjects[bubbleId].SetActive(false);;
+        mBubblesPopTime[bubbleId] = popTime;
+        //mAllBubbleObjects[bubbleId].SetActive(false);
+        if(!timeExceeded) mPoppedBubbles++;
+
+        if ((mRemainingBubbles-1) <= 0)
+        {
+            mExerciseTime = mMaxTimeBubble - popTime;
+        }
+        mRemainingBubbles--;
+
+        //Debug.Log(mRemainingBubbles + " " + mPoppedBubbles + " " + mExerciseTime);
+    }
+
+    public float getExerciseTime()
+    {
+        return mExerciseTime;
+    }
+
+    public int getPoppedBubbles()
+    {
+        return mPoppedBubbles;
+    }
+
+    public int getRemainingBubbles()
+    {
+        return mRemainingBubbles;
+    }
+
+    public int getTotalBubbles()
+    {
+        return mTotalBubbles;
     }
 
     public void IncreasePoppedBubbles()
@@ -115,6 +152,23 @@ public class BubbleManager : MonoBehaviour
     public static float getMaxTimeBubble()
     {
         return mMaxTimeBubble;
+    }
+
+    public void Reset()
+    {
+        mExerciseTime = 0.0f;
+        listaPos.Clear();
+
+        foreach(GameObject bubbleObject in mAllBubbleObjects)
+        {
+            Destroy(bubbleObject);
+        }
+        mAllBubbleObjects.Clear();
+        mAllBubbles.Clear();
+        mBubblesPopTime.Clear();
+        mPoppedBubbles = 0;
+        mRemainingBubbles = 100;
+        mTotalBubbles = 0;
     }
 
     //public void CreateBubblesBB(List<Vector3> lista)

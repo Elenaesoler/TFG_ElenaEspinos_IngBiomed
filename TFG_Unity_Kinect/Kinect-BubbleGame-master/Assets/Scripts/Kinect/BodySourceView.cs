@@ -49,12 +49,21 @@ public class BodySourceView : MonoBehaviour
     
     public GameObject botonGrabar;
     public GameObject botonFin;
+    public GameObject botonBackPersonal;
+    public GameObject CountdownGrabar;
+
     public GameObject botonJugar;
-    public GameObject Countdown;
+    public GameObject CountdownJugar;
+    public GameObject ResultsLetter;
+    public GameObject Results;
 
     private static bool grabar = false;
     private bool startCountdown = false;
+    private bool startCountdownJugar = false;
     private float grabarCountdown = 4.0f;
+    private float jugarCountdown = 4.0f;
+    private float handCloseFor = 0.0f;
+    private bool bothHandsOpen = false;
     public GameObject toggles;
     public Toggle toggleLeft;
     public Toggle toggleRight;
@@ -69,7 +78,6 @@ public class BodySourceView : MonoBehaviour
 
     void Update()
     {
-       
         #region Get Kinect data
         Body[] data = mBodySourceManager.GetData();
         numBodies = 0;
@@ -126,9 +134,9 @@ public class BodySourceView : MonoBehaviour
         }
         #endregion
 
-        #region Countdown
+        #region Cuenta atrás grabación
         //Debug.Log(Countdown);
-        if (startCountdown && Countdown)
+        if (startCountdown && CountdownGrabar)
         {
             grabarCountdown -= Time.deltaTime;
             //Debug.Log(Countdown);
@@ -137,24 +145,88 @@ public class BodySourceView : MonoBehaviour
             {
                 grabar = true;
                 startCountdown = false;
-                Countdown.SetActive(false);
+                CountdownGrabar.SetActive(false);
                 botonFin.SetActive(true);
             }
-            else if (grabarCountdown < 0.5) Countdown.GetComponent<Text>().text = "Grabando";
-            else if (grabarCountdown < 2) Countdown.GetComponent<Text>().text = "1";
-            else if (grabarCountdown < 3) Countdown.GetComponent<Text>().text = "2";
-            else if (grabarCountdown < 4) Countdown.GetComponent<Text>().text = "3";
-            else Countdown.GetComponent<Text>().text = "";
+            else if (grabarCountdown < 0.5) CountdownGrabar.GetComponent<Text>().text = "Grabando";
+            else if (grabarCountdown < 2) CountdownGrabar.GetComponent<Text>().text = "1";
+            else if (grabarCountdown < 3) CountdownGrabar.GetComponent<Text>().text = "2";
+            else if (grabarCountdown < 4) CountdownGrabar.GetComponent<Text>().text = "3";
+            else CountdownGrabar.GetComponent<Text>().text = "";
         }
         #endregion
+
+        #region Cuenta atrás jugar
+        //Debug.Log(Countdown);
+        if (startCountdownJugar && CountdownJugar)
+        {
+            jugarCountdown -= Time.deltaTime;
+            //Debug.Log(Countdown);
+
+            if (jugarCountdown <= 0)
+            {
+                startCountdownJugar = false;
+                CountdownJugar.SetActive(false);
+                mBubbleManager.CallBackPlay();
+            }
+            else if (jugarCountdown < 0.5) CountdownJugar.GetComponent<Text>().text = "Adelante";
+            else if (jugarCountdown < 2) CountdownJugar.GetComponent<Text>().text = "1";
+            else if (jugarCountdown < 3) CountdownJugar.GetComponent<Text>().text = "2";
+            else if (jugarCountdown < 4) CountdownJugar.GetComponent<Text>().text = "3";
+            else CountdownJugar.GetComponent<Text>().text = "";
+        }
+        #endregion
+
+        #region Detectar final del ejercicio
+        if (mBubbleManager.getRemainingBubbles() <= 0)
+        {
+            PrintResultScreen();
+            CallbackFinEjercicio();
+        }
+        #endregion
+
+        #region Detectar que alguna de las manos está cerrada durante 0.2s
+        if (grabar && bothHandsOpen)
+        {
+            handCloseFor += Time.deltaTime;
+            if (handCloseFor > 0.2f)
+            {
+                CallbackBotonFin();
+                handCloseFor = 0.0f;
+                bothHandsOpen = false;
+            }
+        }
+        #endregion
+    }
+
+    public void PrintResultScreen()
+    {
+        string resultSentence = "";
+        if(mBubbleManager.getPoppedBubbles() >= mBubbleManager.getTotalBubbles())
+        {
+            resultSentence = "Has conseguido el objetivo!\n";
+            resultSentence += "Burbujas explotadas: " + mBubbleManager.getPoppedBubbles() + "\n";
+            resultSentence += "Tiempo empleado: " + string.Format("{0:0.00}", mBubbleManager.getExerciseTime()) + " segundos";
+        }
+        else
+        {
+            resultSentence = "No has conseguido el objetivo :(\n";
+            resultSentence += "Burbujas explotadas: " + mBubbleManager.getPoppedBubbles() + "\n";
+            resultSentence += "Burbujas restantes: " + (mBubbleManager.getTotalBubbles() - mBubbleManager.getPoppedBubbles()) + "\n";
+            resultSentence += "Tiempo empleado: " + string.Format("{0:0.00}", mBubbleManager.getExerciseTime()) + " segundos";
+        }
+
+        ResultsLetter.SetActive(true);
+        Results.GetComponent<Text>().text = resultSentence;
+        Results.SetActive(true);
 
     }
     public void CallbackBotonJugar()
     {
         if (numBodies > 0)
         {
-            botonGrabar.SetActive(false);
-            botonFin.SetActive(false);
+            //botonGrabar.SetActive(false);
+            //botonFin.SetActive(false);
             botonJugar.SetActive(false);
             //Debug.Log("Dentro del boton Jugar");
             Dictionary<JointType, List<Vector3>> dict = ReadFile(); /* Se instancia desde unity */
@@ -187,9 +259,17 @@ public class BodySourceView : MonoBehaviour
             }
 
             BubbleManager.setListaPos(CP);
-            mBubbleManager.CallBackPlay();
+            //mBubbleManager.CallBackPlay();
+            CountdownJugar.SetActive(true);
+            startCountdownJugar = true;
+            jugarCountdown = 4.0f;
             //Setbubbles(CalculoVectores(ReadFile()));
         }
+    }
+
+    public void CallbackFinEjercicio()
+    {
+        mBubbleManager.Reset();
     }
 
     public void CallbackBotonGrabarLeft()
@@ -226,10 +306,7 @@ public class BodySourceView : MonoBehaviour
             //grabar = true;
             startCountdown = true;
             grabarCountdown = 4.0f;
-            // Debug.Log("Comienza a grabar el ejercicio y desaparece el boton'Grabar' ");
-            Countdown.SetActive(true);
-            botonGrabar.SetActive(false);
-            //botonJugar.SetActive(false);
+            // Debug.Log("Comienza a grabar el ejercicio y desaparece el boton'Grabar' ");            
 
             dictCoordenadas.Clear();
             jointsToSave.Clear();
@@ -247,6 +324,8 @@ public class BodySourceView : MonoBehaviour
                 jointsToSave.Add(JointType.ShoulderLeft);
             }
 
+            CountdownGrabar.SetActive(true);
+            botonGrabar.SetActive(false);
             toggles.SetActive(false);
         }
     }
@@ -276,6 +355,7 @@ public class BodySourceView : MonoBehaviour
 
         botonGrabar.SetActive(true);
         toggles.SetActive(true);
+        botonBackPersonal.SetActive(true);
         botonFin.SetActive(false);
 
         dictCoordenadas.Clear();
@@ -362,9 +442,15 @@ public class BodySourceView : MonoBehaviour
         {
             GrabarEjercicio(body.Joints);
 
-            if(body.HandLeftState == HandState.Closed || body.HandRightState == HandState.Closed)
+            if((body.HandLeftState == HandState.Closed || body.HandRightState == HandState.Closed) && !bothHandsOpen)
             {
-                CallbackBotonFin();
+                bothHandsOpen = true;
+                //CallbackBotonFin();
+            }
+            else if (!(body.HandLeftState == HandState.Closed || body.HandRightState == HandState.Closed))
+            {
+                bothHandsOpen = false;
+                handCloseFor = 0.0f;
             }
         }
     }
